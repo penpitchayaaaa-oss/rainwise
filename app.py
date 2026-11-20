@@ -220,9 +220,7 @@ with tab_warm:
         ui.card("Step 3 · Attacking (sandwich)", "Tops ≥ 10,000 ft, moving to target",
                 "Two aircraft fly together: NaCl near the cloud top (~9,000 ft) and urea about 1,000 ft above the "
                 "cloud base, to make the mature cloud rain over the target.", "warm"),
-        ui.card("Step 4 · Enhancing", "After the attack",
-                "Dry ice is released about 1,000 ft below the cloud base to cool the air and help the rain fall.", "warm"),
-    ], 4))
+    ], 3))
     html('<p class="rw-note" style="margin-top:10px">A cloud counts as <b>warm</b> while its top is warmer than 0 °C. '
          'Thermodynamic link: salt must be in the cloud while the supersaturation is building, so the large salt '
          'particles (lowest S<sub>c</sub>) activate first.</p>')
@@ -434,10 +432,10 @@ with tab_cold:
                     "freezing, where supercooled droplets are waiting to be frozen (Department of Royal Rainmaking and "
                     "Agricultural Aviation)."))
     html(ui.grid([
-        ui.card("Step 5 · Cold-cloud attack", "Cloud tops reach 20,000 ft",
+        ui.card("Step 4 · Cold-cloud attack", "Cloud tops reach 20,000 ft",
                 "AgI flares are fired at the cloud top, about 21,500 ft. Freezing releases latent heat, which makes "
                 "the cloud more buoyant and strengthens the updraft.", "cold"),
-        ui.card("Step 6 · Super sandwich", "Tops above 20,000 ft",
+        ui.card("Step 5 · Super sandwich", "Tops above 20,000 ft",
                 "At least three aircraft: AgI at about 21,500 ft, NaCl at about 10,000 ft and urea at the cloud base, "
                 "combining cold-cloud and warm-cloud seeding.", "cold"),
         ui.card("Condition", "Colder than about −4 to −5 °C",
@@ -474,10 +472,9 @@ with tab_cold:
         ui.card("Pain point", "ΔG* is too high",
                 "Water molecules alone (homogeneous nucleation) rarely clear the barrier, so ice nuclei do not form and "
                 "supercooled water can persist to about −38 °C.", "pain"),
-        ui.card("Solution", "Silver iodide, or dry ice",
+        ui.card("Solution", "Silver iodide (AgI)",
                 "<b>AgI</b> has a crystal structure close to ice, so water molecules arrange into ice on its surface and "
-                "ΔG* drops. AgI starts working around −4 to −5 °C. <b>Dry ice</b> (−78.5 °C) instead cools the air "
-                "until water freezes on its own.", "sol"),
+                "ΔG* drops. AgI starts working around −4 to −5 °C.", "sol"),
     ], 2))
     st.write("")
     c1, c2 = st.columns([1, 1], gap="large")
@@ -541,7 +538,7 @@ with tab_cold:
                 html(ui.verdict(False, "Too warm for AgI to work yet",
                                 f"At {T_C:g} °C the cloud is warmer than about −4 to −5 °C, where AgI starts to nucleate ice. "
                                 "The barrier is still lowered on paper, but in practice seeding waits until the cloud top is "
-                                "colder (Step 5 needs cloud tops of about 20,000 ft)."))
+                                "colder (Step 4 needs cloud tops of about 20,000 ft)."))
             html(ui.verdict(True, f"AgI lowers the barrier by {res.reduction_pct:.0f} %",
                             f"At {T_C:g} °C, forming an ice nucleus in pure water costs ΔG* ≈ {res.dG_hom_kT:,.0f} kT. "
                             f"On AgI it costs ≈ {res.dG_het_kT:,.1f} kT. Once ice forms, the air, which is saturated for "
