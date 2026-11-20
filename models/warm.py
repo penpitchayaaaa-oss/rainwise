@@ -78,11 +78,6 @@ class WarmResult:
     def margin_pct(self) -> float:
         return self.s_ambient_pct - self.s_c_pct
 
-    @property
-    def pure_water_same_size_pct(self) -> float:
-        """Supersaturation a pure-water droplet as small as the dry particle (r = D_dry/2) would need (Kelvin only)."""
-        return float(kelvin_supersaturation(self.dry_diameter_m / 2, self.T_K, self.sigma)) * 100.0
-
 
 def critical_point(A: float, B: float) -> tuple[float, float]:
     """(r_c [m], s_c [fraction]) of the Koehler curve.

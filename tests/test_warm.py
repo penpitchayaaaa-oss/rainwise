@@ -46,11 +46,6 @@ def test_activation_rule():
     assert warm.analyse("NaCl", 100e-9, T, r.s_c_pct + 1e-6).activates
 
 
-def test_salt_lowers_requirement_compared_with_pure_water():
-    r = warm.analyse("NaCl", 100e-9, T, 0.3)
-    assert r.pure_water_same_size_pct > 10 * r.s_c_pct
-
-
 def test_custom_salt_and_validation():
     kcl = make_salt("custom", "KCl", 74.55, 1.98, 2)
     assert warm.analyse(kcl, 100e-9, T, 0.3).s_c_pct > 0

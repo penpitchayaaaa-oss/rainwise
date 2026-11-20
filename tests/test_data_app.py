@@ -8,7 +8,7 @@ from models import constants as C
 
 def test_database_loads_and_is_positive():
     vals = C.load_constants()
-    assert len(vals) >= 12 and all(v > 0 for v in vals.values())
+    assert len(vals) >= 8 and all(v > 0 for v in vals.values())
     assert set(C.SALTS) >= {"NaCl", "CaCl2"}
     assert C.SALTS["CaCl2"]["i"] == 3 and C.SALTS["NaCl"]["i"] == 2
 
@@ -27,7 +27,9 @@ def test_app_handles_changed_inputs():
     at.multiselect(key="w_salts").set_value(["NaCl", "custom"]).run()
     at.number_input(key="w_d_nm").set_value(3000.0).run()
     at.number_input(key="c_T_C").set_value(-35.0).run()
-    at.slider(key="c_theta").set_value(180.0).run()
+    at.number_input(key="c_Sw").set_value(1.02).run()      # F > 1 -> warning, no INP
+    at.number_input(key="c_N").set_value(100.0).run()
+    at.number_input(key="c_T_C").set_value(-2.0).run()     # too warm
     assert not at.exception
 
 

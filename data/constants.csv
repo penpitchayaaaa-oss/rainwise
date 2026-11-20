@@ -1,13 +1,9 @@
 symbol,name,value,unit,used_in,source
-R,Gas constant,8.314462618,J mol-1 K-1,"Kelvin term A, Clausius-Clapeyron, dG_v",CODATA 2018 (exact SI value)
-k_B,Boltzmann constant,1.380649e-23,J K-1,Barrier expressed in kT,CODATA 2018 (exact SI value)
-T0,Ice-water equilibrium temperature,273.15,K,"Clausius-Clapeyron reference point, degC to K",Definition of the Celsius scale
-p_tp,Vapour pressure of water at the triple point,611.657,Pa,Clausius-Clapeyron reference pressure,Wagner & Pruss (2002) IAPWS-95
-M_w,Molar mass of water,0.01801528,kg mol-1,"A, B, dG_v",CRC Handbook of Chemistry and Physics
+R,Gas constant,8.314462618,J mol-1 K-1,Kelvin term A,CODATA 2018 (exact SI value)
+T0,0 degC in kelvin,273.15,K,degC to K conversion,Definition of the Celsius scale
+M_w,Molar mass of water,0.01801528,kg mol-1,"A, B",CRC Handbook of Chemistry and Physics
 rho_w,Density of liquid water,997.0,kg m-3,"A, B",CRC Handbook of Chemistry and Physics (25 degC)
-rho_ice,Density of ice,917.0,kg m-3,dG_v,CRC Handbook of Chemistry and Physics (0 degC)
 sigma_w,Surface tension of water (gamma in the Kelvin equation),0.072,J m-2,Kelvin term A,Pruppacher & Klett (1997); Wallace & Hobbs (2006)
-dh_vap,Enthalpy of vaporisation of water near 0 degC,45050,J mol-1,p*_liq (Clausius-Clapeyron),CRC Handbook of Chemistry and Physics
-dh_fus,Enthalpy of fusion of ice at 0 degC,6010,J mol-1,"p*_ice, dG_v",CRC Handbook of Chemistry and Physics
-gamma_iw,Ice-water interfacial energy,0.0225,J m-2,"r*, dG*",Tarn et al. (2021) Micromachines 12 223 (value near -36 degC; held constant)
-theta_AgI,Contact angle of ice on AgI,45,deg,f(theta) for AgI,Marcolli et al. (2016) ACP 16 8915 (45-50 deg reported)
+cf_a,Coefficient of the condensation-freezing equation,900,-,Active fraction F,Yang et al. (2024) ACP 24 13833 Eq. 2 (after Xue et al. 2013a; DeMott 1995)
+cf_Tref,Temperature at which AgI condensation-freezing starts,268.66,K,"Active fraction F, validity (T < T_ref)",Yang et al. (2024) Eq. 2
+cf_Ts,Temperature scale in the condensation-freezing equation,10,K,Active fraction F,Yang et al. (2024) (T0 = 10 K defined after Eq. 1)

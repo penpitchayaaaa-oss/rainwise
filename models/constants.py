@@ -40,18 +40,13 @@ def make_salt(key: str, label: str, M_g_per_mol: float, density_g_cm3: float, io
 
 _C = load_constants()
 R = _C["R"]
-K_B = _C["k_B"]
 T0 = _C["T0"]
-P_TRIPLE = _C["p_tp"]
 M_W = _C["M_w"]
 RHO_W = _C["rho_w"]
-RHO_ICE = _C["rho_ice"]
 SIGMA_W = _C["sigma_w"]
-DH_VAP = _C["dh_vap"]
-DH_FUS = _C["dh_fus"]
-DH_SUB = DH_VAP + DH_FUS          # Hess's law: sublimation = vaporisation + fusion
-GAMMA_IW = _C["gamma_iw"]
-THETA_AGI = _C["theta_AgI"]
+CF_A = _C["cf_a"]          # condensation-freezing coefficient (Yang et al., 2024, Eq. 2)
+CF_TREF = _C["cf_Tref"]    # K, AgI condensation-freezing starts below this temperature
+CF_TS = _C["cf_Ts"]        # K, temperature scale
 SALTS = load_salts()
 
 

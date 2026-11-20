@@ -285,11 +285,11 @@ INTRO_STEPS = [
     ("fx", "03 · Equations", "Model code",
      "One equation = one Python function, in SI units. No hidden fitting."),
     ("sliders", "04 · Your inputs", "Cloud conditions",
-     "Salt and particle size, temperature, supersaturation, AgI contact angle."),
+     "Salt and particle size, temperature, humidity (supersaturation), amount of AgI."),
     ("chart", "05 · Results", "Numbers & charts",
-     "Critical radius and supersaturation, activation verdict, ice-nucleation barrier."),
+     "Critical radius and supersaturation, activation verdict, AgI active fraction and ice crystals (INP)."),
     ("shield", "06 · Checks", "Verification",
-     "19 automated checks against the maths and lab data. Field validation still to come."),
+     "18 automated checks against the maths and hand calculations. Field validation still to come."),
 ]
 
 
@@ -363,21 +363,21 @@ def prototype_notice() -> str:
             '<div class="rw-pcard"><div class="k">What it is not</div><div class="t">Not a forecast or rain predictor</div>'
             '<div class="d">It does not forecast the weather, predict rainfall amounts or decide real seeding operations.</div></div>'
             '<div class="rw-pcard"><div class="k">Tested so far</div><div class="t">Numerically verified</div>'
-            '<div class="d">19 automated checks pass: maths, physical trends, edge cases and a comparison with laboratory '
-            'vapour-pressure data.</div></div></div></div>')
+            '<div class="d">18 automated checks pass: maths, hand calculations, physical trends, limits of the equations '
+            'and bad inputs.</div></div></div></div>')
 
 
 ROADMAP = [
     ("v", "Validate warm-cloud results with measured data",
      "Compare the predicted critical supersaturation of NaCl and CaCl₂ particles with laboratory CCN-counter measurements."),
-    ("v", "Validate the AgI barrier with cloud-chamber data",
-     "Check the predicted temperature range against measured freezing fractions of AgI particles."),
+    ("v", "Validate the AgI active fraction with cloud-chamber data",
+     "Check the condensation-freezing active fraction against measured freezing fractions of AgI particles."),
     ("v", "Measure the real seeding materials",
-     "Particle size distribution of the powders, the hydrate state of CaCl₂ and the effective contact angle of the AgI used."),
+     "Particle size distribution of the powders, the hydrate state of CaCl₂ and the ice-nucleating ability of the AgI flares used."),
     ("m", "Add time: how fast drops and crystals grow",
      "Condensation growth rates and collision–coalescence, so the model can say how long growth takes."),
-    ("m", "Temperature-dependent properties and a nucleation rate",
-     "Let Δh, γ and θ change with temperature and convert the barrier into a freezing probability."),
+    ("m", "More AgI mechanisms",
+     "Add the other AgI mechanisms (deposition, immersion, contact) and let properties change with temperature."),
     ("d", "Connect to real atmospheric soundings",
      "Read measured temperature and humidity profiles to show when and at which height the seeding conditions are met."),
     ("d", "Compare with Royal Rainmaking operation records",

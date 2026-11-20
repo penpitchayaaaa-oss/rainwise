@@ -9,9 +9,9 @@ textbook principles:
 | Warm (> 0 °C), NaCl / CaCl₂ | Kelvin effect | p_eq(r) = p_eq,flat · exp(2γV_m / rRT) |
 | | Raoult's law | p_w = a_w · p*_w |
 | | Köhler curve | S_eq − 1 = A/r − B/r³ ; r_c = √(3B/A) ; S_c − 1 = √(4A³/27B) |
-| Cold (< 0 °C), AgI | Classical nucleation theory | ΔG(r) = 4πr²γ + (4/3)πr³ΔG_v ; r* = 2γ/abs(ΔG_v) ; ΔG* = 16πγ³ / 3ΔG_v² |
-| | Heterogeneous nucleation | ΔG*_het = f(θ) · ΔG*_hom ; f(θ) = (2 + cos θ)(1 − cos θ)² / 4 (Fletcher, 1958) |
-| | Clausius–Clapeyron | d ln p* / d(1/T) = −Δh/R ; Δh_sub = Δh_vap + Δh_fus → p*_ice < p*_liq |
+| Cold (< 0 °C), AgI | Classical nucleation theory (explanation) | ΔG(r) = 4πr²γ + (4/3)πr³ΔG_v ; r* = 2γ/abs(ΔG_v) ; ΔG* = 16πγ³ / 3ΔG_v² |
+| | Clausius–Clapeyron (explanation) | d ln p* / d(1/T) = −Δh/R ; Δh_sub = Δh_vap + Δh_fus → p*_ice < p*_liq |
+| | Condensation-freezing on AgI (calculated) | F = 900((268.66 − T)/10)³(S_w − 1)² (Yang et al., 2024, Eq. 2) ; INP = F × N_AgI × 1000 |
 
 It does **not** predict rainfall.
 
@@ -23,7 +23,7 @@ Any OS:
 ```
 python -m pip install -r requirements.txt
 python -m streamlit run app.py
-python -m pytest            # 19 automated checks
+python -m pytest            # 18 automated checks
 ```
 
 ## Where everything is
@@ -31,7 +31,7 @@ python -m pytest            # 19 automated checks
 app.py              page layout and wording (no physics)
 models/constants.py loads the database below
 models/warm.py      Kelvin, Raoult, Köhler (warm cloud)
-models/cold.py      Clausius–Clapeyron, nucleation theory, AgI factor (cold cloud)
+models/agi.py       AgI condensation-freezing: active fraction F and INP (cold cloud)
 utils/plots.py      charts
 utils/theme.py      visual design
 data/constants.csv  every physical constant, with unit and source

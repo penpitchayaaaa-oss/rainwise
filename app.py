@@ -1,7 +1,7 @@
 """RAINWISE - the thermodynamics of cloud seeding, made interactive.
 
 Run:  streamlit run app.py      (Windows: double-click run_app.bat)
-Physics lives in models/ (warm.py, cold.py); this file is layout and wording only.
+Physics lives in models/ (warm.py, agi.py); this file is layout and wording only.
 """
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ import os
 import pandas as pd
 import streamlit as st
 
-from models import cold, warm
-from models.constants import CONSTANTS_FILE, GAMMA_IW, SALTS_FILE, SIGMA_W, THETA_AGI, c_to_k
+from models import agi, warm
+from models.constants import CONSTANTS_FILE, SALTS_FILE, SIGMA_W, c_to_k
 from utils import plots
 from utils import theme as ui
 from utils.library import COLUMNS as SALT_COLUMNS
@@ -23,10 +23,8 @@ st.set_page_config(page_title="RAINWISE — Cloud Seeding Thermodynamics", page_
 
 # On the public website (Streamlit Community Cloud mounts the repo under /mount/src) nothing is written to disk.
 PUBLIC = os.path.exists("/mount/src") or os.environ.get("RAINWISE_PUBLIC") == "1"
-AGI_ONSET_C = -4.0   # AgI starts to work at about -4 to -5 degC (course notes; Marcolli et al., 2016)
 DEFAULTS = {"w_salts": ["NaCl", "CaCl2"], "w_d_nm": 100.0, "w_T_C": 15.0, "w_s": 0.30, "w_parts": True,
-            "w_r_um": 0.1, "w_sigma": SIGMA_W * 1000, "c_T_C": -10.0, "c_theta": float(THETA_AGI),
-            "c_gamma": GAMMA_IW * 1000}
+            "w_r_um": 0.1, "w_sigma": SIGMA_W * 1000, "c_T_C": -15.0, "c_Sw": 1.002, "c_N": 10.0}
 for k, v in DEFAULTS.items():
     st.session_state.setdefault(k, v)
 
@@ -92,14 +90,12 @@ def repo_link(path: str, text: str) -> str:
     return f'<a href="{REPO}/tree/main/{path}" target="_blank">{text}</a>'
 
 
-SYMBOLS = {"R": "R", "k_B": "k<sub>B</sub>", "T0": "T<sub>0</sub>", "p_tp": "p<sub>tp</sub>", "M_w": "M<sub>w</sub>",
-           "rho_w": "ρ<sub>w</sub>", "rho_ice": "ρ<sub>ice</sub>", "sigma_w": "γ (σ<sub>w</sub>)",
-           "dh_vap": "Δh<sub>vap</sub>", "dh_fus": "Δh<sub>fus</sub>", "gamma_iw": "γ<sub>iw</sub>",
-           "theta_AgI": "θ<sub>AgI</sub>"}
+SYMBOLS = {"R": "R", "T0": "T<sub>0</sub>", "M_w": "M<sub>w</sub>", "rho_w": "ρ<sub>w</sub>", "sigma_w": "γ (σ<sub>w</sub>)",
+           "cf_a": "a", "cf_Tref": "T<sub>ref</sub>", "cf_Ts": "T<sub>s</sub>"}
 _PRETTY = [("p*_liq", "p*<sub>liq</sub>"), ("p*_ice", "p*<sub>ice</sub>"), ("dG_v", "ΔG<sub>v</sub>"), ("dG*", "ΔG*"),
            ("f(theta)", "f(θ)"), ("degC", "°C"), ("gamma", "γ"), ("deg", "°"), ("mol-1", "mol⁻¹"), ("K-1", "K⁻¹"),
            ("m-3", "m⁻³"), ("m-2", "m⁻²"), ("Clausius-Clapeyron", "Clausius–Clapeyron"), ("Pruss", "Pruß"),
-           ("dh_", "Δh_"), ("p*_liq", "p*<sub>liq</sub>")]
+           ("dh_", "Δh_"), ("T_ref", "T<sub>ref</sub>")]
 
 
 def _pretty(text) -> str:
@@ -263,10 +259,6 @@ with tab_warm:
         st.latex(r"p_w = a_w\,p^{*}_w \qquad (a_w<1 \;\Rightarrow\; p_w<p^{*}_w)")
         html('<p class="rw-note" style="text-align:center">p<sub>w</sub>: vapour pressure of water over the solution · '
              'a<sub>w</sub>: water activity · p*<sub>w</sub>: vapour pressure of pure water</p>')
-    st.plotly_chart(plots.explain_raoult(c_to_k(15.0)), width="stretch", key="fig_raoult")
-    html('<p class="rw-figcap">Figure — the red curve is a drop of pure water; the blue curve is the same drop with '
-         'dissolved NaCl (100 nm dry particle, 15 °C). The salt pulls the whole curve down, so the drop can grow in a '
-         'normal cloud.</p>')
 
     html(ui.section("06", "Result", "The Köhler curve combines both effects.",
                     "Adding the Kelvin (curvature) and Raoult (solute) effects gives the equilibrium supersaturation of a "
@@ -281,11 +273,6 @@ with tab_warm:
                  'm<sub>s</sub>, M<sub>s</sub>: mass and molar mass of dissolved salt · r<sub>c</sub>: critical radius · '
                  'S<sub>c</sub>: critical supersaturation.</p>')
     case_placeholder = c2.empty()
-    st.plotly_chart(plots.explain_koehler(c_to_k(15.0)), width="stretch", key="fig_koehler")
-    html('<p class="rw-figcap">Figure — how to read the Köhler curve. Red dashed: the Kelvin effect pushes the needed '
-         'supersaturation up for small drops. Green dashed: the dissolved salt pulls it down. Black: the sum. Left of the '
-         'peak the drop is a stable haze droplet; once the cloud\'s supersaturation (blue dotted line) is above the peak, '
-         'the drop passes r<sub>c</sub> and keeps growing (Case 2).</p>')
 
     # ---------------------------------------------------------------- simulator
     html(ui.section("▶", "Simulator", "Will this salt particle become a cloud droplet?",
@@ -342,9 +329,7 @@ with tab_warm:
                          "critical supersaturation = √(4A³/27B)"),
                         ("Cloud − critical", f"{r.margin_pct:+.3g} %", "positive = activates",
                          "ok" if r.activates else "no", "cloud supersaturation minus critical supersaturation"),
-                        ("Without salt", f"{r.pure_water_same_size_pct:.3g} %", "pure-water drop of the same size", "",
-                         "Kelvin equation only: exp(A/r) − 1, with r = half the dry diameter"),
-                    ]))
+                    ], 3))
                 g1, g2 = st.tabs(["Köhler curve", "Critical supersaturation vs size"])
                 with g1:
                     st.plotly_chart(plots.koehler(res, s_amb, st.session_state["w_parts"]), width="stretch")
@@ -462,10 +447,6 @@ with tab_cold:
         html('<p class="rw-note">The driving force comes from the vapour-pressure difference between supercooled water '
              'and ice: ΔG<sub>v</sub> = −(ρ<sub>ice</sub>/M<sub>w</sub>) RT ln(p*<sub>liq</sub>/p*<sub>ice</sub>). '
              'At 0 °C it is zero, so the barrier is infinite. The colder the cloud, the lower the barrier.</p>')
-    st.plotly_chart(plots.explain_cnt(c_to_k(-10.0), GAMMA_IW), width="stretch", key="fig_cnt")
-    html('<p class="rw-figcap">Figure — making an ice embryo at −10 °C. Red dashed: building the ice–water surface costs '
-         'energy (grows with r²). Blue dashed: forming the more stable ice releases energy (grows with r³). Black: the total '
-         'has a hill of height ΔG* at r*. Smaller embryos melt back; larger ones keep growing.</p>')
 
     html(ui.section("05", "How", "AgI lowers the barrier, a process called heterogeneous nucleation."))
     html(ui.grid([
@@ -476,95 +457,113 @@ with tab_cold:
                 "<b>AgI</b> has a crystal structure close to ice, so water molecules arrange into ice on its surface and "
                 "ΔG* drops. AgI starts working around −4 to −5 °C.", "sol"),
     ], 2))
-    st.write("")
-    c1, c2 = st.columns([1, 1], gap="large")
-    with c1:
-        with st.container(border=True, key="eq_het"):
-            st.latex(r"\Delta G^{*}_{het}=f(\theta)\,\Delta G^{*}_{hom},\qquad f(\theta)=\frac{(2+\cos\theta)(1-\cos\theta)^{2}}{4}")
-            html('<p class="rw-note">This is how heterogeneous nucleation is usually quantified in classical nucleation '
-                 'theory (Fletcher, 1958). θ is the contact angle of the ice embryo on the particle. θ → 0° means a perfect '
-                 'template (f → 0, no barrier) and θ = 180° means no help (f = 1). r* does not change; only the height of '
-                 'the barrier does.</p>')
-    with c2:
-        html(ui.card("Value used", "θ ≈ 45° for AgI",
-                     "Marcolli et al. (2016) report a contact angle of 45–50° for AgI. The simulator starts at 45° and "
-                     "lets you vary it. Treat it as a representative value, not a precise property.", ""))
-    st.plotly_chart(plots.free_energy(cold.analyse(c_to_k(-10.0), THETA_AGI)), width="stretch", key="fig_het")
-    html('<p class="rw-figcap">Figure — the same −10 °C ice embryo in pure water (grey) and on AgI (blue). The critical '
-         'radius r* is the same, but the hill is about 17 times lower on AgI, so ice forms much more easily.</p>')
 
     html(ui.section("06", "Result", "Once ice exists, it grows at the droplets' expense.",
                     "Clausius–Clapeyron with Δh<sub>sub</sub> = Δh<sub>vap</sub> + Δh<sub>fus</sub> shows that below 0 °C "
                     "the vapour pressure over ice is lower than over supercooled water. Vapour leaves the droplets and "
                     "deposits on the crystals: the <b>Wegener–Bergeron–Findeisen (Bergeron) process</b>."))
-    with st.container(border=True, key="eq_cc"):
-        st.latex(r"\frac{d\ln p^{*}}{d(1/T)}=-\frac{\Delta h}{R};\qquad \Delta h_{sub}=\Delta h_{vap}+\Delta h_{fus}"
-                 r"\;\Rightarrow\; p^{*}_{ice}<p^{*}_{liq}\ \text{for}\ T<0\,^{\circ}\mathrm{C}")
-    b1, b2 = st.columns([1, 1.35], gap="large")
+    b1, b2 = st.columns([1, 1], gap="large")
     with b1:
-        html(ui.BERGERON_SVG)
-        html('<p class="rw-figcap">The air around a droplet and an ice crystal is the same, but ice holds its molecules '
-             'more tightly (lower p*). Vapour therefore flows from the droplet to the crystal.</p>')
+        with st.container(border=True, key="eq_cc"):
+            st.latex(r"\frac{d\ln p^{*}}{d(1/T)}=-\frac{\Delta h}{R}")
+            st.latex(r"\Delta h_{sub}=\Delta h_{vap}+\Delta h_{fus}\;\Rightarrow\; p^{*}_{ice}<p^{*}_{liq}\ \text{for}\ T<0\,^{\circ}\mathrm{C}")
     with b2:
-        st.plotly_chart(plots.bergeron(-10.0), width="stretch", key="fig_bergeron")
-        html('<p class="rw-figcap">Figure — vapour pressure over supercooled water (light blue) and over ice (dark blue) from '
-             'Clausius–Clapeyron. The orange line shows how supersaturated the air is for ice when it is just saturated for '
-             'water: about 10 % at −10 °C and 23 % at −20 °C.</p>')
+        html(ui.BERGERON_SVG)
+
+    # ---------------------------------------------------------------- the model used for numbers
+    html(ui.section("07", "Model", "How many ice crystals does AgI make? One mechanism, one equation.",
+                    "The theory above explains <i>why</i> AgI works. To calculate <i>how many</i> ice crystals it makes, "
+                    "RAINWISE uses one measured relation for one mechanism: <b>condensation-freezing</b> — water vapour "
+                    "condenses on the AgI particle into a tiny droplet, which then freezes."))
+    m1, m2 = st.columns([1.15, 1], gap="large")
+    with m1:
+        with st.container(border=True, key="eq_cf"):
+            st.latex(r"F = a\left(\frac{T_{ref}-T}{T_s}\right)^{3}\left(S_w-1\right)^{2}")
+            st.latex(r"\mathrm{INP}\,[\mathrm{L^{-1}}] = F\times N_{AgI}\,[\mathrm{cm^{-3}}]\times 1000")
+            html('<p class="rw-note">F: active fraction — the share of AgI particles that become ice (0 to 1) · '
+                 'a = 900 · T<sub>ref</sub> = 268.66 K (−4.5 °C) · T<sub>s</sub> = 10 K · T: cloud temperature [K] · '
+                 'S<sub>w</sub>: water saturation ratio (1.002 = 0.2 % supersaturated) · N<sub>AgI</sub>: AgI particles per '
+                 'cm³ · INP: ice-nucleating particles per litre of air (1 cm⁻³ = 1000 L⁻¹).<br>'
+                 'Source: Yang et al. (2024), Eq. 2, based on laboratory data of DeMott (1995).</p>')
+    with m2:
+        html(ui.card("Why this choice", "Simple and explainable",
+                     "Only three inputs: temperature, humidity (S<sub>w</sub>) and the amount of AgI. No ice saturation "
+                     "S<sub>i</sub> and no assumption about how much AgI sits inside droplets. One equation shows both "
+                     "the temperature effect (power 3) and the humidity effect (power 2).", ""))
+        st.write("")
+        html(ui.card("When the equation applies", "T below −4.5 °C and S<sub>w</sub> above 1",
+                     "Warmer than −4.5 °C: not computed. S<sub>w</sub> ≤ 1: no droplet can form, so F = 0. If F comes out "
+                     "above 1 (very cold and very humid), the equation is outside its range: the app shows a warning and "
+                     "does not turn it into an INP number.", "pain"))
+    st.write("")
+    html(ui.table(pd.DataFrame({
+        "Question": ["What happens when the cloud gets colder?", "What happens when the cloud gets more humid?",
+                     "What happens if we release more AgI?"],
+        "What the model shows": ["F rises with (T<sub>ref</sub> − T)³ — see “Effect of temperature”",
+                                 "F rises with (S<sub>w</sub> − 1)² — see “Effect of humidity”",
+                                 "INP rises in proportion to N<sub>AgI</sub> — see “Effect of AgI amount”"]})))
 
     # ---------------------------------------------------------------- simulator
-    html(ui.section("▶", "Simulator", "How much does AgI lower the barrier at this temperature?",
-                    "Change the cloud temperature and the AgI contact angle. The barrier is shown in joules and as a "
-                    "multiple of kT, the thermal energy a molecule has to work with."))
+    html(ui.section("▶", "Simulator", "How many ice crystals will AgI make in this cloud?",
+                    "Set the cloud temperature, the humidity and the amount of AgI. The results and charts update instantly."))
     left, right = st.columns([1, 2.4], gap="large")
     with left:
         with st.container(border=True, key="card_c_in"):
             html('<div class="rw-panel-title">Cloud</div>')
             st.number_input(r"Temperature $T$ [°C]", -40.0, -1.0, key="c_T_C", step=1.0,
-                            help="Cold cloud: below 0 °C. At 0 °C the barrier is infinite.")
+                            help="The equation applies below −4.5 °C.")
+            st.number_input(r"Water saturation ratio $S_w$ [–]", 0.990, 1.050, key="c_Sw", step=0.001, format="%.3f",
+                            help="1.000 = exactly saturated (RH 100 %). 1.002 = 0.2 % supersaturated. Clouds: about 1.000–1.01.")
+            html(f'<p class="rw-note">→ RH = <b>{st.session_state["c_Sw"] * 100:.1f} %</b> · supersaturation over water '
+                 f'<b>{(st.session_state["c_Sw"] - 1) * 100:+.2f} %</b></p>')
             html('<div class="rw-panel-title">Seeding agent: AgI</div>')
-            st.slider(r"Contact angle $\theta$ [°]", 0.0, 180.0, key="c_theta", step=1.0,
-                      help="45–50° reported for AgI (Marcolli et al., 2016). 180° = no help (homogeneous).")
-            html(f'<p class="rw-note">f(θ) = <b>{cold.wetting_factor(st.session_state["c_theta"]):.3f}</b>, the fraction '
-                 'of the homogeneous barrier left on AgI.</p>')
-            with st.expander("Advanced"):
-                st.number_input(r"Ice–water interfacial energy $\gamma$ [mJ m⁻²]", 10.0, 40.0, key="c_gamma", step=0.5,
-                                help="Default 22.5 mJ m⁻² (Tarn et al., 2021, near −36 °C), held constant.")
+            st.number_input(r"AgI concentration $N_{AgI}$ [cm⁻³]", 0.1, 1000.0, key="c_N", step=1.0,
+                            help="Number of AgI particles in each cubic centimetre of cloud air.")
             st.button("Reset ", on_click=reset, args=("c_",), width="stretch")
     with right:
         try:
-            T_C = st.session_state["c_T_C"]
-            res = cold.analyse(c_to_k(T_C), st.session_state["c_theta"], st.session_state["c_gamma"] / 1000)
-            if T_C > AGI_ONSET_C:
-                html(ui.verdict(False, "Too warm for AgI to work yet",
-                                f"At {T_C:g} °C the cloud is warmer than about −4 to −5 °C, where AgI starts to nucleate ice. "
-                                "The barrier is still lowered on paper, but in practice seeding waits until the cloud top is "
-                                "colder (Step 4 needs cloud tops of about 20,000 ft)."))
-            html(ui.verdict(True, f"AgI lowers the barrier by {res.reduction_pct:.0f} %",
-                            f"At {T_C:g} °C, forming an ice nucleus in pure water costs ΔG* ≈ {res.dG_hom_kT:,.0f} kT. "
-                            f"On AgI it costs ≈ {res.dG_het_kT:,.1f} kT. Once ice forms, the air, which is saturated for "
-                            f"the droplets, is {res.ice_supersaturation_pct:.1f} % supersaturated for ice, so the crystals grow."))
+            T_C, Sw, N = st.session_state["c_T_C"], st.session_state["c_Sw"], st.session_state["c_N"]
+            res = agi.active_fraction(c_to_k(T_C), Sw, N)
+            if res.status == "ok":
+                html(ui.verdict(True, f"AgI makes about {res.inp_per_L:,.3g} ice crystals per litre",
+                                f"At {T_C:g} °C and S<sub>w</sub> = {Sw:.3f}, F = {res.fraction:.3g}: about "
+                                f"{res.fraction * 100:.3g} % of the AgI particles become ice. With {N:g} AgI particles per cm³ "
+                                f"that is {res.inp_per_L:,.3g} ice-nucleating particles per litre of air."))
+            elif res.status == "too_warm":
+                html(ui.verdict(False, "Too warm for AgI", res.message + " Seeding waits until the cloud top is colder."))
+            elif res.status == "not_supersaturated":
+                html(ui.verdict(False, "No condensation, so no condensation-freezing", res.message))
+            else:
+                html(ui.verdict(False, "Outside the range of the equation", res.message))
+            F_txt = "—" if res.fraction is None else f"{res.fraction:.3g}"
+            inp_txt = "—" if res.inp_per_L is None else f"{res.inp_per_L:,.3g} L⁻¹"
             html(ui.kpis([
-                ("Critical radius r*", f"{res.r_star_m * 1e9:.2f} nm", "same with or without AgI", "", "r* = 2γ/|ΔG_v|"),
-                ("Barrier, pure water", f"{res.dG_hom_kT:,.0f} kT", f"ΔG*<sub>hom</sub> = {res.dG_hom_J * 1e18:.3g} × 10⁻¹⁸ J",
-                 "no", "ΔG* = 16πγ³ / 3ΔGᵥ²"),
-                ("Barrier on AgI", f"{res.dG_het_kT:,.1f} kT", f"ΔG*<sub>het</sub> = {res.dG_het_J * 1e18:.3g} × 10⁻¹⁸ J",
-                 "ok", "f(θ) × barrier for pure water"),
-                ("Driving force |ΔG<sub>v</sub>|", f"{abs(res.dGv) / 1e6:.3g} MJ m⁻³", "grows as T falls", "",
-                 "(ρ of ice / Mw) RT ln(p*liq / p*ice)"),
+                ("Active fraction F", F_txt, "share of AgI particles that become ice",
+                 "ok" if res.usable else "no", "F = 900((268.66 − T)/10)³(Sw − 1)²"),
+                ("Ice-nucleating particles", inp_txt, "INP = F × N × 1000", "ok" if res.usable else "",
+                 "per litre of cloud air"),
+                ("Temperature term", "—" if res.status == "too_warm" else f"{((268.66 - c_to_k(T_C)) / 10) ** 3:.3g}",
+                 "((T<sub>ref</sub> − T)/T<sub>s</sub>)³", "", "grows quickly as the cloud gets colder"),
+                ("Humidity term", _num(max(Sw - 1, 0) ** 2) if Sw > 1 else "0", "(S<sub>w</sub> − 1)²", "",
+                 "zero when the air is not supersaturated"),
             ]))
-            html(ui.kpis([
-                ("p*<sub>liq</sub> over supercooled water", f"{res.p_liq:.1f} Pa", "Clausius–Clapeyron, Δh<sub>vap</sub>", "", ""),
-                ("p*<sub>ice</sub> over ice", f"{res.p_ice:.1f} Pa", "Clausius–Clapeyron, Δh<sub>sub</sub>", "", ""),
-                ("Ice supersaturation", f"{res.ice_supersaturation_pct:.1f} %", "when air is saturated for water", "ok",
-                 "p*liq / p*ice − 1"),
-            ], 3))
-            g1, g2, g3 = st.tabs(["Energy barrier ΔG(r)", "Barrier vs temperature", "Bergeron process"])
+            g1, g2, g3 = st.tabs(["Effect of temperature", "Effect of humidity", "Effect of AgI amount"])
             with g1:
-                st.plotly_chart(plots.free_energy(res), width="stretch")
+                st.plotly_chart(plots.cf_vs_temperature(T_C, Sw), width="stretch")
+                html('<p class="rw-figcap">Each line is one humidity; the thick line is yours and the red dot is your '
+                     'cloud. Moving right (colder) the line rises steeply. The vertical scale is logarithmic: each step up '
+                     'is 10 times more ice.</p>')
             with g2:
-                st.plotly_chart(plots.barrier_vs_T(st.session_state["c_theta"], res.gamma, T_C), width="stretch")
+                st.plotly_chart(plots.cf_vs_humidity(T_C, Sw), width="stretch")
+                html('<p class="rw-figcap">Each line is one temperature. Doubling the supersaturation over water makes F '
+                     'four times larger, because F depends on (S<sub>w</sub> − 1)².</p>')
             with g3:
-                st.plotly_chart(plots.bergeron(T_C), width="stretch")
+                if res.usable:
+                    st.plotly_chart(plots.inp_vs_agi(res.fraction, N), width="stretch")
+                    html('<p class="rw-figcap">At a fixed temperature and humidity, the number of ice crystals is simply '
+                         'proportional to the amount of AgI released.</p>')
+                else:
+                    st.info("Choose a temperature below −4.5 °C and S_w above 1 (with F ≤ 1) to see this chart.")
         except ValueError as exc:
             st.error(f"Cannot calculate with these inputs: {exc}")
 
@@ -578,15 +577,16 @@ with tab_method:
          'is. Only the equations written in the notes were used.</li>'
          '<li><b>Write the problem as inputs and outputs.</b> Warm cloud: salt, dry size D<sub>dry</sub>, temperature T and '
          'cloud supersaturation s go in; the critical radius r<sub>c</sub>, the critical supersaturation S<sub>c</sub> and '
-         '“activates or not” come out. Cold cloud: T and the AgI contact angle θ go in; the barrier ΔG* comes out.</li>'
+         '“activates or not” come out. Cold cloud: temperature T, humidity S<sub>w</sub> and the amount of AgI N<sub>AgI</sub> go '
+         'in; the active fraction F and the number of ice-nucleating particles (INP) come out.</li>'
          '<li><b>Collect every number the equations need.</b> Constants such as R, M<sub>w</sub>, ρ<sub>w</sub>, γ and '
          'Δh<sub>fus</sub> were taken from reference books and papers and written into two tables (the database below), '
          'each with its source. No number is typed inside the calculation code.</li>'
          '<li><b>Turn each equation into one small function.</b> One equation = one Python function, all in SI units '
          '(metres, kelvin, joules). For example, A = 2γM<sub>w</sub>/(RTρ<sub>w</sub>) is the function “kelvin_A”.</li>'
-         '<li><b>Find the special points with calculus.</b> The peak of the Köhler curve and the top of the energy barrier are '
-         'where the slope is zero (dS/dr = 0, dΔG/dr = 0). Solving these by hand gives exact formulas for r<sub>c</sub>, '
-         'S<sub>c</sub>, r* and ΔG*, so the app needs no trial and error.</li>'
+         '<li><b>Find the special points with calculus.</b> The peak of the Köhler curve is where the slope is zero '
+         '(dS/dr = 0). Solving this by hand gives exact formulas for r<sub>c</sub> and S<sub>c</sub>, so the app needs no '
+         'trial and error. For AgI, one measured relation (Yang et al., 2024) is used directly.</li>'
          '<li><b>Check the code against the maths and against real data</b> (see Verification below).</li>'
          '<li><b>Build the screens.</b> The page only collects your inputs, calls the functions and shows the answers as '
          'cards and charts. The page itself contains no physics.</li>'
@@ -612,7 +612,7 @@ with tab_method:
     html(ui.section("B", "Traceability", "Every number, traced to its equation and source",
                     "Click a link in the <b>Code</b> column to open the exact lines on GitHub."))
     trace = pd.DataFrame([
-        ["Warm", "s needed by a pure-water droplet (“Without salt”)", "s = exp(A/r) − 1", "Exponential, closed form",
+        ["Warm", "s needed by a pure-water droplet (Why chart)", "s = exp(A/r) − 1", "Exponential, closed form",
          code_link(warm.kelvin_supersaturation), "σ, M<sub>w</sub>, ρ<sub>w</sub>, R", "Kelvin equation [3, 4]"],
         ["Warm", "Kelvin coefficient A", "A = 2γM<sub>w</sub> / (RTρ<sub>w</sub>)", "Algebra",
          code_link(warm.kelvin_A), "σ, M<sub>w</sub>, ρ<sub>w</sub>, R", "Köhler (1936) [2]"],
@@ -630,23 +630,15 @@ with tab_method:
          "your input s", "[3]"],
         ["Warm", "S<sub>c</sub> vs dry size chart", "S<sub>c</sub> at 80 diameters", "Parameter sweep",
          code_link(warm.critical_curve), "—", "[3]"],
-        ["Cold", "p*<sub>liq</sub> and p*<sub>ice</sub>", "ln(p*/p<sub>tp</sub>) = −(Δh/R)(1/T − 1/T<sub>0</sub>)",
-         "Integrated Clausius–Clapeyron (constant Δh)", code_link(cold.p_sat_liquid) + "<br>" + code_link(cold.p_sat_ice),
-         "Δh<sub>vap</sub>, Δh<sub>fus</sub>, p<sub>tp</sub>, T<sub>0</sub>", "[3, 4]; Δh [9]; p<sub>tp</sub> [10]"],
-        ["Cold", "Ice supersaturation",
-         "p*<sub>liq</sub>/p*<sub>ice</sub> − 1 = exp[(Δh<sub>fus</sub>/R)(1/T − 1/T<sub>0</sub>)] − 1",
-         "Ratio of the two curves", code_link(cold.liquid_to_ice_ratio), "Δh<sub>fus</sub>", "[3, 4]"],
-        ["Cold", "Driving force ΔG<sub>v</sub>",
-         "ΔG<sub>v</sub> = −(ρ<sub>ice</sub>/M<sub>w</sub>)RT ln(p*<sub>liq</sub>/p*<sub>ice</sub>)",
-         "Chemical-potential difference per volume", code_link(cold.volume_free_energy), "ρ<sub>ice</sub>, M<sub>w</sub>", "[4]"],
-        ["Cold", "Energy curve ΔG(r)", "4πr<sup>2</sup>γ + (4/3)πr<sup>3</sup>ΔG<sub>v</sub>", "Polynomial in r",
-         code_link(cold.free_energy_curve), "γ<sub>iw</sub>", "Nucleation theory [4]"],
-        ["Cold", "r* and ΔG*<sub>hom</sub>",
-         "r* = 2γ/|ΔG<sub>v</sub>|; ΔG* = 16πγ<sup>3</sup>/(3ΔG<sub>v</sub><sup>2</sup>)", "Calculus: dΔG/dr = 0 (maximum)",
-         code_link(cold.critical_nucleus), "γ<sub>iw</sub>", "[4]"],
-        ["Cold", "ΔG*<sub>het</sub> on AgI", "f(θ)·ΔG*<sub>hom</sub>; f = (2 + cos θ)(1 − cos θ)<sup>2</sup>/4",
-         "Spherical-cap geometry", code_link(cold.wetting_factor), "θ<sub>AgI</sub>", "Fletcher (1958) [6]; θ [7]"],
-        ["Cold", "Barrier in kT", "ΔG* / (k<sub>B</sub>T)", "Division", code_link(cold.ColdResult), "k<sub>B</sub>", "CODATA [12]"],
+        ["Cold", "Active fraction F", "F = a((T<sub>ref</sub> − T)/T<sub>s</sub>)<sup>3</sup>(S<sub>w</sub> − 1)<sup>2</sup>",
+         "Power law fitted to laboratory data", code_link(agi.raw_fraction), data_link("constants.csv") + ": a, T<sub>ref</sub>, T<sub>s</sub>",
+         "Yang et al. (2024) Eq. 2 [6]; DeMott (1995) [8]"],
+        ["Cold", "Status (valid / too warm / F > 1)", "T < T<sub>ref</sub>; S<sub>w</sub> > 1; 0 ≤ F ≤ 1", "Logical checks",
+         code_link(agi.active_fraction), "—", "[6]"],
+        ["Cold", "Ice-nucleating particles INP", "INP = F × N<sub>AgI</sub> × 1000", "Unit conversion cm⁻³ → L⁻¹",
+         code_link(agi.inp_per_litre), "your input N<sub>AgI</sub>", "[6]"],
+        ["Cold", "Effect charts (T, S<sub>w</sub>, N<sub>AgI</sub>)", "F and INP over a range of inputs", "Parameter sweeps",
+         code_link(agi.fraction_curve), "—", "[6]"],
     ], columns=["Module", "What you see", "Equation", "Mathematics", "Code", "Data used", "Reference"])
     html(ui.table(trace, ("Equation",)))
 
@@ -663,10 +655,10 @@ with tab_method:
             st.latex(r"\Rightarrow\; -\frac{B}{r^{3}},\qquad B=\frac{3\,i\,m_s M_w}{4\pi\rho_w M_s}")
             html('<p class="rw-note">Dilute solution with complete dissociation into i ions (ideal van \'t Hoff factor).</p>')
     with d2:
-        with st.expander("Critical ice nucleus: r* and ΔG*", expanded=True):
+        with st.expander("Critical ice nucleus: r* and ΔG* (explanation only)", expanded=True):
             st.latex(r"\frac{d\Delta G}{dr}=8\pi r\gamma+4\pi r^{2}\Delta G_v=0\;\Rightarrow\; r^{*}=-\frac{2\gamma}{\Delta G_v}")
             st.latex(r"\Delta G^{*}=4\pi r^{*2}\gamma+\tfrac{4}{3}\pi r^{*3}\Delta G_v=\frac{16\pi\gamma^{3}}{3\Delta G_v^{2}}")
-        with st.expander(r"Clausius–Clapeyron and $\Delta G_v$"):
+        with st.expander(r"Clausius–Clapeyron and $\Delta G_v$ (explanation only)"):
             st.latex(r"\int_{p_{tp}}^{p^{*}} d\ln p=-\frac{\Delta h}{R}\int_{1/T_0}^{1/T} d\!\left(\tfrac{1}{T}\right)"
                      r"\;\Rightarrow\; p^{*}=p_{tp}\exp\!\left[-\frac{\Delta h}{R}\left(\frac{1}{T}-\frac{1}{T_0}\right)\right]")
             st.latex(r"\frac{p^{*}_{liq}}{p^{*}_{ice}}=\exp\!\left[\frac{\Delta h_{fus}}{R}\left(\frac{1}{T}-\frac{1}{T_0}\right)\right],\qquad"
@@ -688,24 +680,22 @@ with tab_method:
 
     html(ui.section("E", "Verification", "How we know the numbers are right",
                     "Every check below is written as an automated test in " + repo_link("tests", "the tests folder")
-                    + ". Running <code>python -m pytest</code> repeats all 19 checks in a few seconds, and all of them pass."))
+                    + ". Running <code>python -m pytest</code> repeats all 18 checks in a few seconds, and all of them pass."))
     html('<ul class="rw-checks">'
-         '<li><b>Is the formula really the peak of the curve?</b> We drew the Köhler curve at 200,000 points and picked the '
+         '<li><b>Is the Köhler formula really the peak of the curve?</b> We drew the curve at 200,000 points and picked the '
          'highest one by brute force. It matches r<sub>c</sub> = √(3B/A) and S<sub>c</sub> − 1 = √(4A<sup>3</sup>/27B) to '
-         'one part in a million. The same test is done for the ice barrier: ΔG at r* equals ΔG*, and the slope there is zero.</li>'
-         '<li><b>Does a hand calculation give the same answer?</b> The worked example above (100 nm NaCl, 15 °C) gives '
-         'S<sub>c</sub> − 1 = 0.106 % on paper and in the app.</li>'
-         '<li><b>Does it agree with measured data?</b> Our Clausius–Clapeyron vapour pressures were compared with '
-         'Murphy &amp; Koop (2005), a fit to laboratory measurements. Over ice the difference is under 1 % from 0 to −40 °C. '
-         'Over supercooled water it is under 2 % down to −20 °C and 8 % at −40 °C.</li>'
+         'one part in a million.</li>'
+         '<li><b>Does a hand calculation give the same answer?</b> Warm cloud: 100 nm NaCl at 15 °C gives S<sub>c</sub> − 1 = '
+         '0.106 % on paper and in the app. Cold cloud: at −15 °C and S<sub>w</sub> = 1.002, '
+         '900 × 1.051<sup>3</sup> × 0.002<sup>2</sup> = 0.00418, so 10 AgI particles per cm³ give 41.8 ice crystals per '
+         'litre — the same as the app.</li>'
          '<li><b>Do the trends make physical sense?</b> A bigger salt particle needs less supersaturation (exactly '
-         'D<sub>dry</sub><sup>−3/2</sup>). A pure-water drop needs far more than a salty one. A colder cloud has a lower ice '
-         'barrier, and AgI always gives a lower barrier than pure water. Below 0 °C, p*<sub>ice</sub> is always less than '
-         'p*<sub>liq</sub>, and the two are equal at 0 °C.</li>'
-         '<li><b>Do the extreme cases come out right?</b> The AgI factor gives f = 0 at θ = 0° (perfect template), '
-         'f = 0.5 at 90° and f = 1 at 180° (no help).</li>'
-         '<li><b>Are bad inputs caught?</b> A temperature typed in °C where kelvin is needed is refused, a salt with a '
-         'negative molar mass is refused, and an incomplete row in the salt library is flagged and not used.</li>'
+         'D<sub>dry</sub><sup>−3/2</sup>),. For AgI, F rises when '
+         'the cloud gets colder and when it gets more humid, and INP is exactly proportional to the amount of AgI.</li>'
+         '<li><b>Are the limits of the AgI equation respected?</b> Warmer than −4.5 °C: not computed. S<sub>w</sub> ≤ 1: '
+         'F = 0. F above 1: shown with a warning and never turned into an INP number (it is not silently cut to 1).</li>'
+         '<li><b>Are bad inputs caught?</b> A temperature typed in °C where kelvin is needed is refused, a negative AgI '
+         'amount or a salt with a negative molar mass is refused, and an incomplete row in the salt library is flagged.</li>'
          '<li><b>Does the whole app run?</b> One test opens the full website and changes the inputs; another adds, edits and '
          'deletes salts in the library. Both check that nothing breaks.</li></ul>')
 
@@ -716,10 +706,10 @@ with tab_method:
         ui.card("Ideal solution", "Dilute Köhler form",
                 "A/r − B/r³ assumes a dilute, fully dissociated solution. It is accurate near activation and less so "
                 "for very concentrated haze droplets.", ""),
-        ui.card("Constant properties", "Δh, γ, θ held fixed",
-                "Clausius–Clapeyron uses constant Δh. Against Murphy &amp; Koop (2005) the ice supersaturation is "
-                "10.6 % vs 10.2 % at −10 °C and 23.3 % vs 21.6 % at −20 °C. It is accurate in the usual seeding range "
-                "(−5 to −20 °C) and overestimated below about −30 °C. γ<sub>iw</sub> is a single value near −36 °C.", ""),
+        ui.card("One AgI mechanism", "Condensation-freezing only",
+                "Deposition, immersion and contact freezing are not included. The AgI equation is an empirical fit to "
+                "laboratory data (DeMott, 1995); T<sub>s</sub> = 10 K is taken from the definition given after Eq. 1 in "
+                "Yang et al. (2024), and F can exceed 1 when it is pushed outside its range.", ""),
     ], 3))
 
     html(ui.section("G", "References", "Sources"))
@@ -729,19 +719,16 @@ with tab_method:
         "3. Wallace, J. M., & Hobbs, P. V. (2006). *Atmospheric Science: An Introductory Survey* (2nd ed.). Academic Press.\n"
         "4. Pruppacher, H. R., & Klett, J. D. (1997). *Microphysics of Clouds and Precipitation* (2nd ed.). Kluwer.\n"
         "5. Rogers, R. R., & Yau, M. K. (1989). *A Short Course in Cloud Physics* (3rd ed.). Pergamon.\n"
-        "6. Fletcher, N. H. (1958). Size effect in heterogeneous nucleation. *J. Chem. Phys.*, 29, 572–576.\n"
-        "7. Marcolli, C., Nagare, B., Welti, A., & Lohmann, U. (2016). Ice nucleation efficiency of AgI: review and new "
-        "insights. *Atmos. Chem. Phys.*, 16, 8915–8937. doi:10.5194/acp-16-8915-2016\n"
-        "8. Tarn, M. D., Sikora, S. N. F., Porter, G. C. E., Shim, J., & Murray, B. J. (2021). Homogeneous freezing of water "
-        "using microfluidics. *Micromachines*, 12, 223. doi:10.3390/mi12020223\n"
+        "6. Yang, J., et al. (2024). Estimating the concentration of silver iodide needed to detect unambiguous "
+        "signatures of glaciogenic cloud seeding. *Atmos. Chem. Phys.*, 24, 13833–13848. doi:10.5194/acp-24-13833-2024\n"
+        "7. Xue, L., et al. (2013a). Implementation of a silver iodide cloud-seeding parameterization in WRF. Part I. "
+        "*J. Appl. Meteor. Climatol.* (as cited in [6])\n"
+        "8. DeMott, P. J. (1995). Quantitative descriptions of ice formation mechanisms of silver iodide-type aerosols. "
+        "*Atmos. Res.* (as cited in [6])\n"
         "9. Rumble, J. R. (ed.). *CRC Handbook of Chemistry and Physics*. CRC Press.\n"
-        "10. Wagner, W., & Pruß, A. (2002). The IAPWS formulation 1995 for the thermodynamic properties of ordinary water "
-        "substance. *J. Phys. Chem. Ref. Data*, 31, 387–535.\n"
-        "11. Murphy, D. M., & Koop, T. (2005). Review of the vapour pressures of ice and supercooled water for atmospheric "
-        "applications. *Q. J. R. Meteorol. Soc.*, 131, 1539–1565 (used only to check accuracy).\n"
-        "12. Tiesinga, E., et al. (2021). CODATA recommended values of the fundamental physical constants: 2018. "
+        "10. Tiesinga, E., et al. (2021). CODATA recommended values of the fundamental physical constants: 2018. "
         "*J. Phys. Chem. Ref. Data*, 50, 033105.\n"
-        "13. Department of Royal Rainmaking and Agricultural Aviation. *Royal Rainmaking Technology* (e-book, steps I–VI). "
+        "11. Department of Royal Rainmaking and Agricultural Aviation. *Royal Rainmaking Technology* (e-book, steps I–VI). "
         "ASEAN Weather Modification Centre. https://awmc.royalrain.go.th/asean/ebook_pic/1727245596.pdf")
 
 # =============================================================================== PROTOTYPE STATUS (end of page)
