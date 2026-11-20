@@ -259,3 +259,139 @@ COALESCENCE_SVG = """
   <text x="455" y="150" text-anchor="middle" font-size="12" fill="#0B1F33">heavy enough → rain</text>
   <defs><marker id="d" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1D4ED8"/></marker></defs>
 </svg>"""
+
+
+# ---------------------------------------------------------------- intro flow (animated) and prototype notice
+_ICONS = {
+    "book": '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M8 7h7M8 11h7"/>',
+    "data": '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+    "fx": '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M10 7c-1.5 0-2 1-2 2v8M6.5 11h4"/><path d="M13 11l4 6M17 11l-4 6"/>',
+    "sliders": '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+    "chart": '<path d="M4 20V4"/><path d="M4 20h16"/><path d="M7 16c3-1 4-8 7-8s3 5 6 5"/>',
+    "shield": '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+}
+
+
+def _icon(name: str) -> str:
+    return (f'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" '
+            f'stroke-linecap="round" stroke-linejoin="round">{_ICONS[name]}</svg>')
+
+
+INTRO_STEPS = [
+    ("book", "01 · Principles", "Course notes",
+     "Kelvin effect, Raoult’s law, Köhler curve, nucleation theory, Clausius–Clapeyron."),
+    ("data", "02 · Data", "Reference values",
+     "Constants from the CRC Handbook, IAPWS-95 and peer-reviewed papers. Every value has a source."),
+    ("fx", "03 · Equations", "Model code",
+     "One equation = one Python function, in SI units. No hidden fitting."),
+    ("sliders", "04 · Your inputs", "Cloud conditions",
+     "Salt and particle size, temperature, supersaturation, AgI contact angle."),
+    ("chart", "05 · Results", "Numbers & charts",
+     "Critical radius and supersaturation, activation verdict, ice-nucleation barrier."),
+    ("shield", "06 · Checks", "Verification",
+     "19 automated checks against the maths and lab data. Field validation still to come."),
+]
+
+
+def intro_flow() -> str:
+    boxes = []
+    for i, (ic, k, t, d) in enumerate(INTRO_STEPS):
+        boxes.append(f'<div class="rw-fbox" style="animation-delay:{i * 0.12:.2f}s"><div class="rw-ficon">{_icon(ic)}</div>'
+                     f'<div class="rw-fk">{k}</div><div class="rw-ft">{t}</div><div class="rw-fd">{d}</div></div>')
+        if i < len(INTRO_STEPS) - 1:
+            boxes.append('<div class="rw-flink"><span class="rw-fdot" style="animation-delay:'
+                         f'{i * 0.35:.2f}s"></span></div>')
+    return ('<div class="rw-intro"><div class="rw-intro-head"><span class="rw-badge2">Scientific simulator · prototype</span>'
+            '<h3>Where every number in RAINWISE comes from</h3>'
+            '<p>RAINWISE is <b>not</b> a weather forecast and does <b>not</b> predict rainfall. It is a scientific simulator: '
+            'you change the cloud conditions and it calculates what textbook thermodynamics says should happen.</p></div>'
+            f'<div class="rw-fflow">{"".join(boxes)}</div></div>')
+
+
+INTRO_CSS = """
+<style>
+.rw-intro{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px 26px 22px;margin:8px 0 6px;
+  box-shadow:0 18px 40px -32px rgba(11,31,51,.45);}
+.rw-intro-head h3{font-family:'Instrument Serif',Georgia,serif !important;font-weight:400;font-size:1.9rem;margin:10px 0 6px;padding:0;}
+.rw-intro-head p{margin:0 0 18px;max-width:860px;color:var(--body);}
+.rw-badge2{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+  background:var(--accent-soft);border-radius:999px;padding:5px 12px;}
+.rw-fflow{display:flex;align-items:stretch;gap:0;}
+.rw-fbox{flex:1 1 0;min-width:0;border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;background:linear-gradient(180deg,#fff,#F7F9FC);
+  opacity:0;transform:translateY(8px);animation:rwIn .6s ease forwards;transition:box-shadow .2s, transform .2s;}
+.rw-fbox:hover{box-shadow:0 10px 24px -14px rgba(29,78,216,.45);transform:translateY(-2px);}
+.rw-ficon{width:42px;height:42px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.rw-fbox:last-child .rw-ficon{background:#F0FDF4;color:var(--ok);}
+.rw-fk{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.rw-ft{font-weight:600;color:var(--ink);font-size:.98rem;margin:2px 0 4px;}
+.rw-fd{font-size:.8rem;color:var(--muted);line-height:1.45;}
+.rw-flink{flex:0 0 22px;align-self:center;height:2px;background:repeating-linear-gradient(90deg,#C7D2FE 0 4px,transparent 4px 7px);position:relative;}
+.rw-fdot{position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent);animation:rwDot 2.1s ease-in-out infinite;}
+@keyframes rwIn{to{opacity:1;transform:none;}}
+@keyframes rwDot{0%{left:-2px;opacity:0;}20%{opacity:1;}80%{opacity:1;}100%{left:18px;opacity:0;}}
+.rw-proto{margin:72px 0 24px;border-radius:22px;padding:28px;background:linear-gradient(135deg,#0B1F33 0%,#13305A 60%,#1D4ED8 130%);color:#E2E8F0;}
+.rw-proto h3{font-family:'Instrument Serif',Georgia,serif !important;font-weight:400;font-size:2rem;color:#fff !important;margin:8px 0 6px;padding:0;}
+.rw-proto p{color:#CBD5E1;margin:0;}
+.rw-proto .rw-badge2{background:rgba(255,255,255,.12);color:#BFDBFE;}
+.rw-pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 6px;}
+.rw-pcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:14px 16px;}
+.rw-pcard .k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#93C5FD;font-weight:600;}
+.rw-pcard .t{color:#fff;font-weight:600;margin:4px 0;}
+.rw-pcard .d{font-size:.85rem;color:#CBD5E1;line-height:1.5;}
+.rw-road{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:6px;}
+.rw-ritem{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;}
+.rw-rnum{flex:0 0 30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.85rem;}
+.rw-ritem b{color:var(--ink);}
+.rw-ritem .d{font-size:.88rem;color:var(--body);line-height:1.5;margin-top:2px;}
+.rw-tag{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:2px;}
+.rw-tag.v{background:#FEF3C7;color:#92400E;} .rw-tag.m{background:#E0E7FF;color:#3730A3;} .rw-tag.d{background:#DCFCE7;color:#166534;}
+@media (max-width: 900px){.rw-fflow{flex-direction:column;gap:6px;}.rw-flink{flex:0 0 14px;width:2px;height:14px;align-self:center;
+  background:repeating-linear-gradient(180deg,#C7D2FE 0 4px,transparent 4px 7px);}.rw-fdot{display:none;}
+  .rw-pgrid,.rw-road{grid-template-columns:1fr;}}
+</style>
+"""
+
+
+def prototype_notice() -> str:
+    return ('<div class="rw-proto"><span class="rw-badge2">Prototype status</span>'
+            '<h3>A prototype to test an idea — not an operational tool</h3>'
+            '<p>RAINWISE is an educational and research prototype. Its calculations have been checked numerically, but they '
+            'have <b>not yet been validated against real measurements</b> from clouds or laboratories.</p>'
+            '<div class="rw-pgrid">'
+            '<div class="rw-pcard"><div class="k">What it is</div><div class="t">A scientific simulator</div>'
+            '<div class="d">Change the conditions and see what thermodynamic models predict, with every equation and value traceable.</div></div>'
+            '<div class="rw-pcard"><div class="k">What it is not</div><div class="t">Not a forecast or rain predictor</div>'
+            '<div class="d">It does not forecast the weather, predict rainfall amounts or decide real seeding operations.</div></div>'
+            '<div class="rw-pcard"><div class="k">Tested so far</div><div class="t">Numerically verified</div>'
+            '<div class="d">19 automated checks pass: maths, physical trends, edge cases and a comparison with laboratory '
+            'vapour-pressure data.</div></div></div></div>')
+
+
+ROADMAP = [
+    ("v", "Validate warm-cloud results with measured data",
+     "Compare the predicted critical supersaturation of NaCl and CaCl₂ particles with laboratory CCN-counter measurements."),
+    ("v", "Validate the AgI barrier with cloud-chamber data",
+     "Check the predicted temperature range against measured freezing fractions of AgI particles."),
+    ("v", "Measure the real seeding materials",
+     "Particle size distribution of the powders, the hydrate state of CaCl₂ and the effective contact angle of the AgI used."),
+    ("m", "Add time: how fast drops and crystals grow",
+     "Condensation growth rates and collision–coalescence, so the model can say how long growth takes."),
+    ("m", "Temperature-dependent properties and a nucleation rate",
+     "Let Δh, γ and θ change with temperature and convert the barrier into a freezing probability."),
+    ("d", "Connect to real atmospheric soundings",
+     "Read measured temperature and humidity profiles to show when and at which height the seeding conditions are met."),
+    ("d", "Compare with Royal Rainmaking operation records",
+     "Test whether the model's 'activates / AgI works' conditions match days when seeding was carried out."),
+    ("d", "Expert review",
+     "Review by atmospheric scientists and the Department of Royal Rainmaking and Agricultural Aviation before any wider use."),
+]
+
+
+def roadmap() -> str:
+    tag = {"v": ("Need verification", "v"), "m": ("Model upgrade", "m"), "d": ("Data & deployment", "d")}
+    items = []
+    for i, (k, t, d) in enumerate(ROADMAP, 1):
+        lab, cls = tag[k]
+        items.append(f'<div class="rw-ritem"><div class="rw-rnum">{i}</div><div><b>{t}</b>'
+                     f'<span class="rw-tag {cls}">{lab}</span><div class="d">{d}</div></div></div>')
+    return '<div class="rw-road">' + "".join(items) + "</div>"

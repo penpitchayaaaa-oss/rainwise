@@ -134,6 +134,7 @@ def size(m: float) -> str:
 
 # =============================================================================== header + hero
 html(ui.CSS)
+html(ui.INTRO_CSS)
 html(ui.nav())
 html(f"""
 <div class="rw-hero">
@@ -155,6 +156,7 @@ tab_over, tab_warm, tab_cold, tab_method = st.tabs(["Overview", "Warm-cloud seed
 
 # =============================================================================== OVERVIEW
 with tab_over:
+    html(ui.intro_flow())
     html(ui.section("00", "The idea", "Two kinds of cloud. Two problems. Two solutions.",
                     "Clouds are full of water, yet many never rain: their droplets or ice crystals stay too small to "
                     "fall. Cloud seeding adds particles that help them grow. Which particle works depends on whether "
@@ -771,4 +773,9 @@ with tab_method:
         "13. Department of Royal Rainmaking and Agricultural Aviation. *Royal Rainmaking Technology* (e-book, steps I–VI). "
         "ASEAN Weather Modification Centre. https://awmc.royalrain.go.th/asean/ebook_pic/1727245596.pdf")
 
-
+# =============================================================================== PROTOTYPE STATUS (end of page)
+html(ui.prototype_notice())
+html(ui.section("", "Improvements", "What comes next",
+                "The roadmap to turn the prototype into a validated tool. The first three items are the most important: "
+                "the model needs to be verified against real measurements."))
+html(ui.roadmap())
