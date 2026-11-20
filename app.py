@@ -573,19 +573,7 @@ with tab_cold:
 
 # =============================================================================== HOW IT WORKS
 with tab_method:
-    html(ui.section("A", "Architecture", "From your input to the number on screen",
-                    "RAINWISE has no hidden model. Four plain files do all the work, and you can open each of them."))
-    html('<div class="rw-flow">'
-         '<div class="rw-node"><div class="k">Input</div><b>You</b><span>sliders and boxes in the simulator</span></div>'
-         '<div class="rw-arrow">+</div>'
-         '<div class="rw-node"><div class="k">Database</div><b>data/*.csv</b><span>constants.csv · salts.csv, each value with its source</span></div>'
-         '<div class="rw-arrow">→</div>'
-         '<div class="rw-node hl"><div class="k">Equations</div><b>models/</b><span>warm.py (Kelvin, Raoult, Köhler) · cold.py (CNT, Clausius–Clapeyron)</span></div>'
-         '<div class="rw-arrow">→</div>'
-         '<div class="rw-node"><div class="k">Output</div><b>app.py + utils/plots.py</b><span>result cards and charts</span></div>'
-         '</div>')
-
-    html(ui.section("B", "Method", "How RAINWISE was built, step by step",
+    html(ui.section("A", "Method", "How RAINWISE was built, step by step",
                     "Eight plain steps, in the order they were done. Each one can be checked in the code."))
     html('<ol class="rw-steps rw-method">'
          '<li><b>Start from the course notes.</b> For each cloud type we asked the same questions: What is sprayed, '
@@ -624,7 +612,7 @@ with tab_method:
          f'<li>Compare: 0.3 % ≥ {sc_ex * 100:.3f} %, so the particle <b>activates</b>. These are the same numbers the '
          'simulator shows with its default settings.</li></ol></div>')
 
-    html(ui.section("C", "Traceability", "Every number, traced to its equation and source",
+    html(ui.section("B", "Traceability", "Every number, traced to its equation and source",
                     "Click a link in the <b>Code</b> column to open the exact lines on GitHub."))
     trace = pd.DataFrame([
         ["Warm", "s needed by a pure-water droplet (“Without salt”)", "s = exp(A/r) − 1", "Exponential, closed form",
@@ -665,7 +653,7 @@ with tab_method:
     ], columns=["Module", "What you see", "Equation", "Mathematics", "Code", "Data used", "Reference"])
     html(ui.table(trace, ("Equation",)))
 
-    html(ui.section("D", "Derivations", "Where the closed-form results come from"))
+    html(ui.section("C", "Derivations", "Where the closed-form results come from"))
     d1, d2 = st.columns(2, gap="large")
     with d1:
         with st.expander(r"Köhler critical point: $r_c$ and $S_c$", expanded=True):
@@ -688,7 +676,7 @@ with tab_method:
                      r"\Delta G_v=-\frac{\rho_{ice}}{M_w}RT\ln\frac{p^{*}_{liq}}{p^{*}_{ice}}")
             html('<p class="rw-note">Δh is taken as constant between 0 and −40 °C, which is the main approximation.</p>')
 
-    html(ui.section("E", "Database", "The values the equations read",
+    html(ui.section("D", "Database", "The values the equations read",
                     "Both tables are plain CSV files in the data folder: " + data_link("constants.csv") + " and "
                     + data_link("salts.csv") + ". The app reads them every time it starts."))
     cdf = pd.read_csv(CONSTANTS_FILE)
@@ -701,21 +689,7 @@ with tab_method:
     b1.download_button("Download constants.csv", cdf.to_csv(index=False).encode(), "constants.csv", width="stretch")
     b2.download_button("Download salts.csv", SALT_TABLE.to_csv(index=False).encode(), "salts.csv", width="stretch")
 
-    html(ui.section("F", "Your own values", "Three ways to change an input"))
-    html(ui.grid([
-        ui.card("Level 1 · Simulator", "Move a slider",
-                "Particle size, temperature, ambient supersaturation and the AgI contact angle are inputs on each "
-                "simulator panel. Results update instantly.", ""),
-        ui.card("Level 2 · Salt library & Advanced", "Try a new substance",
-                "In <b>Warm-cloud seeding → Salt library</b>, edit the table or add a row with molar mass, density and "
-                "number of ions i, for example KCl (74.55 g mol⁻¹, 1.98 g cm⁻³, i = 2). Click <b>Save</b> to write it to "
-                "data/salts.csv. <b>Advanced</b> changes γ or γ<sub>iw</sub> for this session.", ""),
-        ui.card("Level 3 · Database files", "Change a constant",
-                "Edit a value in <b>data/constants.csv</b> (or data/salts.csv) with Excel or a text editor, save, then "
-                "restart the app (close and reopen run_app.bat). Always fill in the <i>source</i> column.", ""),
-    ], 3))
-
-    html(ui.section("G", "Verification", "How we know the numbers are right",
+    html(ui.section("E", "Verification", "How we know the numbers are right",
                     "Every check below is written as an automated test in " + repo_link("tests", "the tests folder")
                     + ". Running <code>python -m pytest</code> repeats all 19 checks in a few seconds, and all of them pass."))
     html('<ul class="rw-checks">'
@@ -738,7 +712,7 @@ with tab_method:
          '<li><b>Does the whole app run?</b> One test opens the full website and changes the inputs; another adds, edits and '
          'deletes salts in the library. Both check that nothing breaks.</li></ul>')
 
-    html(ui.section("H", "Limits", "What this model does not do"))
+    html(ui.section("F", "Limits", "What this model does not do"))
     html(ui.grid([
         ui.card("Equilibrium only", "No time, no rainfall",
                 "The model shows whether growth is possible, not how fast it is or how much rain falls.", ""),
@@ -751,7 +725,7 @@ with tab_method:
                 "(−5 to −20 °C) and overestimated below about −30 °C. γ<sub>iw</sub> is a single value near −36 °C.", ""),
     ], 3))
 
-    html(ui.section("I", "References", "Sources"))
+    html(ui.section("G", "References", "Sources"))
     st.markdown(
         "1. Course notes, Topic 13: Royal Rainmaking and Cloud Seeding (What / Where / Why / How / Result framework).\n"
         "2. Köhler, H. (1936). The nucleus in and the growth of hygroscopic droplets. *Trans. Faraday Soc.*, 32, 1152–1161.\n"
