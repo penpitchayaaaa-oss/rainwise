@@ -277,17 +277,16 @@ with tab_warm:
     # ---------------------------------------------------------------- simulator
     st.write("")
     html(ui.table(pd.DataFrame({
-        "Question": ["Why add salt at all?", "What happens if the salt particle is bigger?",
-                     "What happens if the cloud is more humid?", "NaCl or CaCl₂?"],
-        "What the model shows": [
-            "The salt (Raoult term −B/r³) pulls the Köhler curve down, so much less supersaturation is needed — see "
-            "“Köhler curve” with the Kelvin and Raoult terms switched on",
-            "S<sub>c</sub> falls as D<sub>dry</sub><sup>−3/2</sup>: a particle 4 times bigger needs 8 times less "
-            "supersaturation — see “Critical supersaturation vs size”",
-            "Once the cloud's supersaturation s reaches S<sub>c</sub> − 1, the particle activates and the card turns "
-            "green — see “Cloud − critical”",
-            "At the same size NaCl needs a slightly lower S<sub>c</sub> because it releases more ions per volume; size "
-            "matters much more than the type of salt — compare the two result rows"]})))
+        "Question": ["Why add salt at all?", "Bigger salt particle?", "More humid cloud?", "Which salt works best?"],
+        "Short answer": [
+            "Dissolved salt lowers the vapour pressure of the droplet (Raoult), so it needs far less supersaturation to grow.",
+            "It activates more easily: 4× bigger → 8× less supersaturation needed (S<sub>c</sub> ∝ D<sub>dry</sub><sup>−3/2</sup>).",
+            "When the cloud's supersaturation s reaches S<sub>c</sub> − 1, the particle becomes a cloud droplet.",
+            "Compare any salts — NaCl, CaCl₂ or one you add. More ions per volume (i·ρ<sub>s</sub>/M<sub>s</sub>) → lower "
+            "S<sub>c</sub>. Particle size still matters more than salt type."],
+        "Where to look": ["Köhler curve (turn on Kelvin and Raoult terms)", "Chart: Critical supersaturation vs size",
+                          "Card: Cloud − critical (green / red)", "Select several salts; add new ones in the Salt library"],
+    })))
 
     html(ui.section("▶", "Simulator", "Will this salt particle become a cloud droplet?",
                     "Change the inputs on the left. The results and charts update instantly."))
@@ -508,11 +507,12 @@ with tab_cold:
                      "does not turn it into an INP number.", "pain"))
     st.write("")
     html(ui.table(pd.DataFrame({
-        "Question": ["What happens when the cloud gets colder?", "What happens when the cloud gets more humid?",
-                     "What happens if we release more AgI?"],
-        "What the model shows": ["F rises with (T<sub>ref</sub> − T)³ — see “Effect of temperature”",
-                                 "F rises with (S<sub>w</sub> − 1)² — see “Effect of humidity”",
-                                 "INP rises in proportion to N<sub>AgI</sub> — see “Effect of AgI amount”"]})))
+        "Question": ["Colder cloud?", "More humid cloud?", "More AgI?"],
+        "Short answer": ["More AgI particles turn into ice: F rises with (T<sub>ref</sub> − T)<sup>3</sup>.",
+                         "F rises with (S<sub>w</sub> − 1)<sup>2</sup>: twice the supersaturation → 4× more ice.",
+                         "Ice crystals rise in proportion: 10× more AgI → 10× more INP."],
+        "Where to look": ["Chart: Effect of temperature", "Chart: Effect of humidity", "Chart: Effect of AgI amount"],
+    })))
 
     # ---------------------------------------------------------------- simulator
     html(ui.section("▶", "Simulator", "How many ice crystals will AgI make in this cloud?",

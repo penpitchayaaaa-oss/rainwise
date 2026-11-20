@@ -110,6 +110,7 @@ a{color:var(--accent);}
 .rw-table th{background:#F6F8FB;color:var(--muted);font-weight:600;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);}
 .rw-table td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--body);line-height:1.45;}
 .rw-table tr:last-child td{border-bottom:none;}
+.rw-table td:first-child{font-weight:600;color:var(--ink);white-space:nowrap;}
 .rw-table td.mono{font-family:'SFMono-Regular',Consolas,monospace;font-size:.8rem;color:var(--ink);}
 .rw-foot{margin-top:72px;padding:22px 0;border-top:1px solid var(--line);font-size:.82rem;color:var(--muted);display:flex;justify-content:space-between;}
 [data-testid="stExpander"] details{border-radius:14px !important;border-color:var(--line) !important;background:#fff;}
@@ -288,15 +289,17 @@ INTRO_STEPS = [
      "Salt and particle size, temperature, humidity (supersaturation), amount of AgI."),
     ("chart", "05 · Results", "Numbers & charts",
      "Critical radius and supersaturation, activation verdict, AgI active fraction and ice crystals (INP)."),
-    ("shield", "06 · Checks", "Verification",
-     "18 automated checks against the maths and hand calculations. Field validation still to come."),
+    ("shield", "06 · Next phase", "Validation (planned)",
+     "Idea for the next step: compare the results with laboratory and field measurements. "
+     "Today the code is checked against the maths only (18 automated checks)."),
 ]
 
 
 def intro_flow() -> str:
     boxes = []
     for i, (ic, k, t, d) in enumerate(INTRO_STEPS):
-        boxes.append(f'<div class="rw-fbox" style="animation-delay:{i * 0.12:.2f}s"><div class="rw-ficon">{_icon(ic)}</div>'
+        cls = "rw-fbox future" if i == len(INTRO_STEPS) - 1 else "rw-fbox"
+        boxes.append(f'<div class="{cls}" style="animation-delay:{i * 0.12:.2f}s"><div class="rw-ficon">{_icon(ic)}</div>'
                      f'<div class="rw-fk">{k}</div><div class="rw-ft">{t}</div><div class="rw-fd">{d}</div></div>')
         if i < len(INTRO_STEPS) - 1:
             boxes.append('<div class="rw-flink"><span class="rw-fdot" style="animation-delay:'
@@ -321,7 +324,9 @@ INTRO_CSS = """
   opacity:0;transform:translateY(8px);animation:rwIn .6s ease forwards;transition:box-shadow .2s, transform .2s;}
 .rw-fbox:hover{box-shadow:0 10px 24px -14px rgba(29,78,216,.45);transform:translateY(-2px);}
 .rw-ficon{width:42px;height:42px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
-.rw-fbox:last-child .rw-ficon{background:#F0FDF4;color:var(--ok);}
+.rw-fbox.future{border-style:dashed;border-color:#F59E0B;background:linear-gradient(180deg,#FFFBEB,#FFFFFF);}
+.rw-fbox.future .rw-ficon{background:#FEF3C7;color:#B45309;}
+.rw-fbox.future .rw-fk{color:#B45309;}
 .rw-fk{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
 .rw-ft{font-weight:600;color:var(--ink);font-size:.98rem;margin:2px 0 4px;}
 .rw-fd{font-size:.8rem;color:var(--muted);line-height:1.45;}
