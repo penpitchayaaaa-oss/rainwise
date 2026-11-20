@@ -275,6 +275,20 @@ with tab_warm:
     case_placeholder = c2.empty()
 
     # ---------------------------------------------------------------- simulator
+    st.write("")
+    html(ui.table(pd.DataFrame({
+        "Question": ["Why add salt at all?", "What happens if the salt particle is bigger?",
+                     "What happens if the cloud is more humid?", "NaCl or CaCl₂?"],
+        "What the model shows": [
+            "The salt (Raoult term −B/r³) pulls the Köhler curve down, so much less supersaturation is needed — see "
+            "“Köhler curve” with the Kelvin and Raoult terms switched on",
+            "S<sub>c</sub> falls as D<sub>dry</sub><sup>−3/2</sup>: a particle 4 times bigger needs 8 times less "
+            "supersaturation — see “Critical supersaturation vs size”",
+            "Once the cloud's supersaturation s reaches S<sub>c</sub> − 1, the particle activates and the card turns "
+            "green — see “Cloud − critical”",
+            "At the same size NaCl needs a slightly lower S<sub>c</sub> because it releases more ions per volume; size "
+            "matters much more than the type of salt — compare the two result rows"]})))
+
     html(ui.section("▶", "Simulator", "Will this salt particle become a cloud droplet?",
                     "Change the inputs on the left. The results and charts update instantly."))
     left, right = st.columns([1, 2.4], gap="large")
@@ -458,17 +472,19 @@ with tab_cold:
                 "ΔG* drops. AgI starts working around −4 to −5 °C.", "sol"),
     ], 2))
 
-    html(ui.section("06", "Result", "Once ice exists, it grows at the droplets' expense.",
+    html(ui.section("06", "Result", "From ice crystal to rain.",
                     "Clausius–Clapeyron with Δh<sub>sub</sub> = Δh<sub>vap</sub> + Δh<sub>fus</sub> shows that below 0 °C "
-                    "the vapour pressure over ice is lower than over supercooled water. Vapour leaves the droplets and "
-                    "deposits on the crystals: the <b>Wegener–Bergeron–Findeisen (Bergeron) process</b>."))
-    b1, b2 = st.columns([1, 1], gap="large")
-    with b1:
-        with st.container(border=True, key="eq_cc"):
-            st.latex(r"\frac{d\ln p^{*}}{d(1/T)}=-\frac{\Delta h}{R}")
-            st.latex(r"\Delta h_{sub}=\Delta h_{vap}+\Delta h_{fus}\;\Rightarrow\; p^{*}_{ice}<p^{*}_{liq}\ \text{for}\ T<0\,^{\circ}\mathrm{C}")
-    with b2:
-        html(ui.BERGERON_SVG)
+                    "the vapour pressure over ice is lower than over supercooled water. So once AgI has made an ice crystal, "
+                    "the crystal takes vapour from the droplets around it and grows (the <b>Wegener–Bergeron–Findeisen "
+                    "process</b>), and it also collects supercooled droplets (riming). When it is heavy enough it falls as "
+                    "snow, and it melts into rain as it passes the 0 °C level on its way to the ground."))
+    with st.container(border=True, key="eq_cc"):
+        st.latex(r"\frac{d\ln p^{*}}{d(1/T)}=-\frac{\Delta h}{R};\qquad \Delta h_{sub}=\Delta h_{vap}+\Delta h_{fus}"
+                 r"\;\Rightarrow\; p^{*}_{ice}<p^{*}_{liq}\ \text{for}\ T<0\,^{\circ}\mathrm{C}")
+    html(ui.ICE_TO_RAIN_SVG)
+    html('<p class="rw-figcap">1 The supercooled droplet loses vapour · 2 the ice crystal gains it by deposition and also '
+         'collects droplets (riming) · 3 the crystal becomes heavy and falls as snow · 4 below the 0 °C level it melts '
+         'and reaches the ground as rain.</p>')
 
     # ---------------------------------------------------------------- the model used for numbers
     html(ui.section("07", "Model", "How many ice crystals does AgI make? One mechanism, one equation.",
@@ -486,11 +502,6 @@ with tab_cold:
                  'cm³ · INP: ice-nucleating particles per litre of air (1 cm⁻³ = 1000 L⁻¹).<br>'
                  'Source: Yang et al. (2024), Eq. 2, based on laboratory data of DeMott (1995).</p>')
     with m2:
-        html(ui.card("Why this choice", "Simple and explainable",
-                     "Only three inputs: temperature, humidity (S<sub>w</sub>) and the amount of AgI. No ice saturation "
-                     "S<sub>i</sub> and no assumption about how much AgI sits inside droplets. One equation shows both "
-                     "the temperature effect (power 3) and the humidity effect (power 2).", ""))
-        st.write("")
         html(ui.card("When the equation applies", "T below −4.5 °C and S<sub>w</sub> above 1",
                      "Warmer than −4.5 °C: not computed. S<sub>w</sub> ≤ 1: no droplet can form, so F = 0. If F comes out "
                      "above 1 (very cold and very humid), the equation is outside its range: the app shows a warning and "

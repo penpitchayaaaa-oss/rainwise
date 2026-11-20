@@ -395,3 +395,43 @@ def roadmap() -> str:
         items.append(f'<div class="rw-ritem"><div class="rw-rnum">{i}</div><div><b>{t}</b>'
                      f'<span class="rw-tag {cls}">{lab}</span><div class="d">{d}</div></div></div>')
     return '<div class="rw-road">' + "".join(items) + "</div>"
+
+# full chain: droplet -> ice crystal (deposition) -> snow falls -> melts below 0 degC -> rain (original drawing)
+ICE_TO_RAIN_SVG = """
+<svg viewBox="0 0 1000 300" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="1000" height="300" rx="18" fill="#F8FAFC"/>
+  <rect x="0" y="0" width="1000" height="205" rx="18" fill="#EFF6FF"/>
+  <line x1="20" y1="205" x2="980" y2="205" stroke="#0369A1" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text x="980" y="197" text-anchor="end" font-size="12" font-weight="600" fill="#0369A1">0 °C level</text>
+  <text x="30" y="30" font-size="12" font-weight="600" fill="#0369A1">CLOUD BELOW 0 °C</text>
+  <text x="30" y="290" font-size="12" font-weight="600" fill="#B45309">AIR ABOVE 0 °C</text>
+  <g font-size="12" text-anchor="middle">
+    <!-- 1 droplet -->
+    <circle cx="110" cy="105" r="30" fill="#BFDBFE"/><circle cx="110" cy="105" r="19" fill="none" stroke="#2563EB" stroke-dasharray="3 3"/>
+    <text x="110" y="62" font-weight="700" fill="#1D4ED8">1</text>
+    <text x="110" y="155" fill="#0B1F33">supercooled droplet</text><text x="110" y="172" fill="#DC2626">evaporates</text>
+    <!-- arrow vapour -->
+    <g stroke="#64748B" stroke-width="2" marker-end="url(#ar)"><line x1="150" y1="95" x2="265" y2="95"/><line x1="150" y1="115" x2="265" y2="115"/></g>
+    <text x="207" y="85" fill="#334155">water vapour</text><text x="207" y="135" fill="#334155">p*<tspan dy="4" font-size="9">liq</tspan><tspan dy="-4"> &gt; p*</tspan><tspan dy="4" font-size="9">ice</tspan></text>
+    <!-- 2 crystal -->
+    <g transform="translate(320,105)" stroke="#1E3A8A" stroke-width="3" stroke-linecap="round">
+      <line x1="0" y1="-30" x2="0" y2="30"/><line x1="-26" y1="-15" x2="26" y2="15"/><line x1="-26" y1="15" x2="26" y2="-15"/></g>
+    <text x="320" y="62" font-weight="700" fill="#1D4ED8">2</text>
+    <text x="320" y="155" fill="#0B1F33">ice crystal grows</text><text x="320" y="172" fill="#15803D">deposition + riming</text>
+    <line x1="365" y1="105" x2="470" y2="105" stroke="#64748B" stroke-width="2" marker-end="url(#ar)"/>
+    <!-- 3 snowflake heavy -->
+    <g transform="translate(530,105)" stroke="#1E3A8A" stroke-width="4" stroke-linecap="round">
+      <line x1="0" y1="-40" x2="0" y2="40"/><line x1="-35" y1="-20" x2="35" y2="20"/><line x1="-35" y1="20" x2="35" y2="-20"/>
+      <g stroke-width="2.5"><line x1="0" y1="-28" x2="-9" y2="-37"/><line x1="0" y1="-28" x2="9" y2="-37"/><line x1="0" y1="28" x2="-9" y2="37"/><line x1="0" y1="28" x2="9" y2="37"/></g></g>
+    <text x="530" y="52" font-weight="700" fill="#1D4ED8">3</text>
+    <text x="530" y="168" fill="#0B1F33">heavy enough → falls as snow</text>
+    <line x1="590" y1="125" x2="700" y2="230" stroke="#64748B" stroke-width="2" marker-end="url(#ar)"/>
+    <!-- 4 rain -->
+    <path d="M770 205 C 755 230 750 245 770 255 C 790 245 785 230 770 205 Z" fill="#2563EB"/>
+    <path d="M820 220 C 810 238 807 248 820 255 C 833 248 830 238 820 220 Z" fill="#60A5FA"/>
+    <text x="795" y="198" font-weight="700" fill="#1D4ED8">4</text>
+    <text x="900" y="240" fill="#0B1F33">melts → rain</text>
+    <text x="900" y="257" fill="#B45309">reaches the ground</text>
+  </g>
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#64748B"/></marker></defs>
+</svg>"""
