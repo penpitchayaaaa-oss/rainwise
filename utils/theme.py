@@ -356,7 +356,7 @@ INTRO_CSS = """
 .rw-ritem{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;}
 .rw-rnum{flex:0 0 30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.85rem;}
 .rw-ritem b{color:var(--ink);}
-.rw-ritem .d{font-size:.88rem;color:var(--body);line-height:1.5;margin-top:2px;}
+.rw-ritem div.d{font-size:.88rem;color:var(--body);line-height:1.5;margin-top:2px;}
 .rw-tag{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:2px;}
 .rw-tag.v{background:#FEF3C7;color:#92400E;} .rw-tag.m{background:#E0E7FF;color:#3730A3;} .rw-tag.d{background:#DCFCE7;color:#166534;}
 @media (max-width: 900px){.rw-fflow{flex-direction:column;gap:6px;}.rw-flink{flex:0 0 14px;width:2px;height:14px;align-self:center;
