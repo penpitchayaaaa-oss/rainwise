@@ -297,6 +297,8 @@ def _logo(file: str) -> str:
 def _icon(name: str) -> str:
     if name.startswith("logo:"):
         return _logo(name[5:])
+    if name == "rainwise":  # same drop mark as the RAINWISE brand in the nav bar
+        return '<span class="rw-mark" style="width:24px;height:24px;margin-top:4px"></span>'
     return (f'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" '
             f'stroke-linecap="round" stroke-linejoin="round">{_ICONS[name]}</svg>')
 
@@ -310,7 +312,7 @@ INTRO_STEPS = [
      "One equation = one Python function, in SI units. No hidden fitting."),
     ("logo:logo_excel.png", "04 · Your inputs", "Cloud conditions",
      "Salt and particle size, temperature, humidity (supersaturation), amount of AgI."),
-    ("chart", "05 · Results", "Numbers & charts",
+    ("rainwise", "05 · Results", "Numbers & charts",
      "Critical radius and supersaturation, activation verdict, AgI active fraction and ice crystals (INP)."),
     ("shield", "06 · Next phase", "Validation (planned)",
      "Idea for the next step: compare the results with laboratory and field measurements. "
