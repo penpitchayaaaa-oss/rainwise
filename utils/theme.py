@@ -336,7 +336,7 @@ INTRO_CSS = """
 .rw-fbox.future{border-style:dashed;border-color:#F59E0B;background:linear-gradient(180deg,#FFFBEB,#FFFFFF);}
 .rw-fbox.future .rw-ficon{background:#FEF3C7;color:#B45309;}
 .rw-fbox.future .rw-fk{color:#B45309;}
-.rw-fk{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.rw-fk{font-family:"Times New Roman",Tinos,Times,serif !important;font-style:normal;font-size:.84rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
 .rw-ft{font-weight:600;color:var(--ink);font-size:.98rem;margin:2px 0 4px;}
 .rw-fd{font-size:.8rem;color:var(--muted);line-height:1.45;}
 .rw-flink{flex:0 0 22px;align-self:center;height:2px;background:repeating-linear-gradient(90deg,#C7D2FE 0 4px,transparent 4px 7px);position:relative;}
