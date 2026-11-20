@@ -117,6 +117,9 @@ a{color:var(--accent);}
 .stButton button{border-radius:999px;}
 .rw-method li{margin-bottom:6px;}
 .rw-figcap{font-size:.85rem;color:var(--muted);line-height:1.55;margin:-6px 0 18px;max-width:900px;}
+.rw-chartnote{font-size:.88rem;color:var(--body);line-height:1.6;background:#F8FAFC;border:1px solid var(--line);border-left:4px solid #2563EB;border-radius:10px;padding:10px 14px;margin:-4px 0 18px;}
+.rw-chartnote div+div{margin-top:6px;}
+.rw-chartnote b.k{color:#1E3A8A;margin-right:6px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;}
 .rw-checks{padding-left:1.1rem;margin:0;}
 .rw-checks li{margin-bottom:10px;line-height:1.6;}
 .rw-table a{color:var(--accent);text-decoration:none;font-family:'SFMono-Regular',Consolas,monospace;font-size:.8rem;white-space:nowrap;}
@@ -188,6 +191,12 @@ def kpis(items: list[tuple], cols: int = 4) -> str:
         out.append(f'<div class="rw-kpi {kind}" title="{tip}"><div class="k">{k}</div><div class="v">{v}</div>'
                    f'<div class="s">{s}</div></div>')
     return "".join(out) + "</div>"
+
+
+def chart_note(how: str, key: str) -> str:
+    """Interpretation box under a chart: how to read it, and what matters."""
+    return (f'<div class="rw-chartnote"><div><b class="k">How to read</b>{how}</div>'
+            f'<div><b class="k">Key point</b>{key}</div></div>')
 
 
 def verdict(ok: bool, head: str, body: str) -> str:
@@ -291,7 +300,7 @@ INTRO_STEPS = [
      "Critical radius and supersaturation, activation verdict, AgI active fraction and ice crystals (INP)."),
     ("shield", "06 · Next phase", "Validation (planned)",
      "Idea for the next step: compare the results with laboratory and field measurements. "
-     "Today the code is checked against the maths only (18 automated checks)."),
+     "Today the code is checked against the maths only."),
 ]
 
 
@@ -367,9 +376,9 @@ def prototype_notice() -> str:
             '<div class="d">Change the conditions and see what thermodynamic models predict, with every equation and value traceable.</div></div>'
             '<div class="rw-pcard"><div class="k">What it is not</div><div class="t">Not a forecast or rain predictor</div>'
             '<div class="d">It does not forecast the weather, predict rainfall amounts or decide real seeding operations.</div></div>'
-            '<div class="rw-pcard"><div class="k">Tested so far</div><div class="t">Numerically verified</div>'
-            '<div class="d">18 automated checks pass: maths, hand calculations, physical trends, limits of the equations '
-            'and bad inputs.</div></div></div></div>')
+            '<div class="rw-pcard"><div class="k">Tested so far</div><div class="t">Checked against the maths</div>'
+            '<div class="d">Hand calculations, physical trends, the limits of the equations and bad inputs have been '
+            'checked.</div></div></div></div>')
 
 
 ROADMAP = [

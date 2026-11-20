@@ -23,7 +23,7 @@ Any OS:
 ```
 python -m pip install -r requirements.txt
 python -m streamlit run app.py
-python -m pytest            # 18 automated checks
+python -m pytest            # run the checks
 ```
 
 ## Where everything is

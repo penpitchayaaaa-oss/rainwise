@@ -6,6 +6,7 @@ Physics lives in models/ (warm.py, agi.py); this file is layout and wording only
 from __future__ import annotations
 
 import inspect
+import math
 import os
 
 import pandas as pd
@@ -243,6 +244,15 @@ with tab_warm:
     with c2:
         st.plotly_chart(plots.kelvin_only(c_to_k(st.session_state["w_T_C"]), r_try, st.session_state["w_sigma"] / 1000),
                         width="stretch")
+        _Tk, _sg = c_to_k(st.session_state["w_T_C"]), st.session_state["w_sigma"] / 1000
+        _s001 = float(warm.kelvin_supersaturation(0.01e-6, _Tk, _sg)) * 100
+        _s1 = float(warm.kelvin_supersaturation(1e-6, _Tk, _sg)) * 100
+        html(ui.chart_note(
+            "The curve is the supersaturation a pure-water droplet needs to stay in equilibrium at each radius "
+            "(both axes logarithmic). The red dot is the radius you chose with the slider.",
+            f"The smaller the droplet, the more supersaturation it needs: {_s001:.3g} % at 0.01 µm but only "
+            f"{_s1:.2g} % at 1 µm. Real clouds rarely exceed about 1 %, so a newborn pure-water droplet evaporates "
+            "before it can grow. This curvature barrier is what salt seeding removes."))
 
     html(ui.section("05", "How", "Add salt and Raoult's law lowers the vapour pressure."))
     html(ui.grid([
@@ -328,11 +338,25 @@ with tab_warm:
                     if r.activates:
                         html(ui.verdict(True, f"{lab} activates and becomes a cloud droplet",
                                         f"The cloud's supersaturation ({s_amb:g} %) is above the critical value S<sub>c</sub> − 1 = "
-                                        f"{r.s_c_pct:.3g} %, so the droplet grows past r<sub>c</sub> = {size(r.r_c_m)} and keeps growing."))
+                                        f"{r.s_c_pct:.3g} %, so the droplet grows past r<sub>c</sub> = {size(r.r_c_m)} and keeps growing."
+                                        f"<br><b>Why:</b> the dissolved salt lowers the vapour pressure over the droplet "
+                                        f"(Raoult's law), which pulls the peak of its Köhler curve down to {r.s_c_pct:.3g} %. "
+                                        f"The cloud is above that peak, so once the droplet passes r<sub>c</sub> it needs less and "
+                                        f"less supersaturation and its growth no longer stops."))
                     else:
+                        if s_amb > 0:
+                            d_min = math.ceil(d_m * (r.s_c_pct / s_amb) ** (2 / 3) * 1e9) * 1e-9
+                            bigger = f"<b>a larger particle</b> (at least about {size(d_min)} dry diameter)"
+                        else:
+                            bigger = "<b>a larger particle</b>"
                         html(ui.verdict(False, f"{lab} does not activate",
                                         f"The cloud's supersaturation ({s_amb:g} %) is below S<sub>c</sub> − 1 = {r.s_c_pct:.3g} %, so the "
-                                        f"droplet stays at a small equilibrium size. Use a larger particle or a wetter cloud."))
+                                        f"droplet stops at a small equilibrium size (a haze droplet) and cannot pass r<sub>c</sub>."
+                                        f"<br><b>What would make it activate, and why:</b> {bigger}, because a bigger dry "
+                                        f"particle dissolves more salt, which strengthens the Raoult term B and lowers the barrier "
+                                        f"(S<sub>c</sub> − 1 falls as D<sub>dry</sub><sup>−3/2</sup>); or <b>a wetter cloud</b> "
+                                        f"(s of at least {r.s_c_pct:.3g} %), because more water vapour lifts the cloud's "
+                                        f"supersaturation above the peak of the Köhler curve, so the droplet can climb over it."))
                 for r in res:
                     lab = sub(r.label)
                     html(f'<div class="rw-salt">{lab} · dry diameter {size(d_m)}</div>' + ui.kpis([
@@ -346,8 +370,32 @@ with tab_warm:
                 g1, g2 = st.tabs(["Köhler curve", "Critical supersaturation vs size"])
                 with g1:
                     st.plotly_chart(plots.koehler(res, s_amb, st.session_state["w_parts"]), width="stretch")
+                    _peaks = "; ".join(
+                        f"{sub(r.label)}: peak {r.s_c_pct:.3g} % is "
+                        + ("below the cloud line, so it <b>activates</b>" if r.activates else "above the cloud line, so it <b>stays haze</b>")
+                        for r in res)
+                    html(ui.chart_note(
+                        "Each thick curve is the supersaturation a droplet of that salt needs at each wet radius. On the "
+                        "rising left side it is a stable haze droplet; the dot at the top is the critical point "
+                        "(r<sub>c</sub>, S<sub>c</sub> − 1). The green dashed line is the supersaturation your cloud provides."
+                        + (" Dotted lines are the two parts: the Kelvin term (+A/r) and the Raoult term (−B/r³)."
+                           if st.session_state["w_parts"] else ""),
+                        f"If the green line is above the peak, the droplet can pass r<sub>c</sub> and grow without limit "
+                        f"(activation). If the line cuts the curve below the peak, growth stops where they cross. {_peaks}."))
                 with g2:
                     st.plotly_chart(plots.critical_vs_size(props, T_K, s_amb, d_m, sigma), width="stretch")
+                    if s_amb > 0:
+                        _mins = "; ".join(f"{sub(r.label)} from about {size(math.ceil(d_m * (r.s_c_pct / s_amb) ** (2 / 3) * 1e9) * 1e-9)}" for r in res)
+                        _mins = f" In this cloud the smallest particles that activate are: {_mins}."
+                    else:
+                        _mins = " With s = 0 % no particle activates."
+                    html(ui.chart_note(
+                        "Each curve gives the critical supersaturation that a dry particle of that salt needs (both axes "
+                        "logarithmic). The green dashed line is your cloud; the dotted vertical line is your particle size. "
+                        "Particles to the right of the point where a curve crosses the green line activate.",
+                        "The curves fall with a slope of −3/2: doubling the dry size lowers S<sub>c</sub> − 1 by about "
+                        "2.8 times. Particle size matters more than salt type, because the curves of different salts lie "
+                        "close together." + _mins))
                 with st.expander("Calculation details"):
                     st.dataframe(pd.DataFrame([{
                         "salt": r.label, "ions i": p["i"], "molar mass [g/mol]": round(p["M"] * 1000, 3), "density [g/cm³]": p["rho"] / 1000,
@@ -539,13 +587,26 @@ with tab_cold:
                 html(ui.verdict(True, f"AgI makes about {res.inp_per_L:,.3g} ice crystals per litre",
                                 f"At {T_C:g} °C and S<sub>w</sub> = {Sw:.3f}, F = {res.fraction:.3g}: about "
                                 f"{res.fraction * 100:.3g} % of the AgI particles become ice. With {N:g} AgI particles per cm³ "
-                                f"that is {res.inp_per_L:,.3g} ice-nucleating particles per litre of air."))
+                                f"that is {res.inp_per_L:,.3g} ice-nucleating particles per litre of air."
+                                "<br><b>Why:</b> below −4.5 °C the energy barrier for ice on AgI is low enough, and because "
+                                "the air is supersaturated (S<sub>w</sub> > 1) water first condenses on each AgI particle and "
+                                "the small droplet then freezes (condensation-freezing). A colder cloud gives more ice through "
+                                "((T<sub>ref</sub> − T)/T<sub>s</sub>)³ and a wetter cloud through (S<sub>w</sub> − 1)²."))
             elif res.status == "too_warm":
-                html(ui.verdict(False, "Too warm for AgI", res.message + " Seeding waits until the cloud top is colder."))
+                html(ui.verdict(False, "Too warm for AgI", res.message
+                                + " <br><b>Why:</b> at this temperature the energy barrier to form ice is still too high, even "
+                                "on AgI, so almost no particles freeze. Seeding therefore waits until the cloud top is colder "
+                                "(Royal Rainmaking fires AgI at about 21,500 ft)."))
             elif res.status == "not_supersaturated":
-                html(ui.verdict(False, "No condensation, so no condensation-freezing", res.message))
+                html(ui.verdict(False, "No condensation, so no condensation-freezing", res.message
+                                + " <br><b>Why:</b> condensation-freezing needs liquid water to condense on the AgI first. "
+                                "Without supersaturation over water no droplet forms, so there is nothing to freeze. Seed the "
+                                "part of the cloud that is still rising, where the updraft cools the air and makes S<sub>w</sub> > 1."))
             else:
-                html(ui.verdict(False, "Outside the range of the equation", res.message))
+                html(ui.verdict(False, "Outside the range of the equation", res.message
+                                + " <br><b>Why:</b> the power law was fitted to laboratory data at moderate cold and "
+                                "humidity; pushed further it overshoots. Choose a warmer temperature or a lower S<sub>w</sub> "
+                                "to get a meaningful number."))
             F_txt = "—" if res.fraction is None else f"{res.fraction:.3g}"
             inp_txt = "—" if res.inp_per_L is None else f"{res.inp_per_L:,.3g} L⁻¹"
             html(ui.kpis([
@@ -561,18 +622,36 @@ with tab_cold:
             g1, g2, g3 = st.tabs(["Effect of temperature", "Effect of humidity", "Effect of AgI amount"])
             with g1:
                 st.plotly_chart(plots.cf_vs_temperature(T_C, Sw), width="stretch")
-                html('<p class="rw-figcap">Each line is one humidity; the thick line is yours and the red dot is your '
-                     'cloud. Moving right (colder) the line rises steeply. The vertical scale is logarithmic: each step up '
-                     'is 10 times more ice.</p>')
+                if res.status != "too_warm":
+                    _dT = -4.5 - T_C
+                    _gain = ((_dT + 5) / _dT) ** 3
+                    _from_to = f"from {T_C:g} °C to {T_C - 5:g} °C".replace("-", "−")
+                    _tk = (f"At your humidity, cooling the cloud {_from_to} multiplies F by "
+                           f"{_gain:.2g}. AgI therefore works best in the coldest part of the cloud that still holds "
+                           "supercooled water.")
+                else:
+                    _tk = ("Your cloud is warmer than −4.5 °C, where the equation gives no ice: move right on the chart "
+                           "(colder) to see AgI start to work.")
+                html(ui.chart_note(
+                    "Each line is one humidity; the thick line is yours and the red dot is your cloud. The horizontal "
+                    "axis runs from warm (left) to cold (right). The vertical scale is logarithmic: each step up is 10 "
+                    "times more ice.", _tk))
             with g2:
                 st.plotly_chart(plots.cf_vs_humidity(T_C, Sw), width="stretch")
-                html('<p class="rw-figcap">Each line is one temperature. Doubling the supersaturation over water makes F '
-                     'four times larger, because F depends on (S<sub>w</sub> − 1)².</p>')
+                html(ui.chart_note(
+                    "Each line is one temperature; the thick line is yours. The horizontal axis is the supersaturation "
+                    "over water, (S<sub>w</sub> − 1) × 100 %.",
+                    "F is zero at S<sub>w</sub> = 1 and grows with (S<sub>w</sub> − 1)²: doubling the supersaturation "
+                    "gives 4 times more ice. AgI therefore works best where the cloud is still growing and supersaturated."))
             with g3:
                 if res.usable:
                     st.plotly_chart(plots.inp_vs_agi(res.fraction, N), width="stretch")
-                    html('<p class="rw-figcap">At a fixed temperature and humidity, the number of ice crystals is simply '
-                         'proportional to the amount of AgI released.</p>')
+                    html(ui.chart_note(
+                        "At your temperature and humidity, the line gives the ice crystals per litre for each AgI "
+                        "concentration; the red dot is your N<sub>AgI</sub>.",
+                        "Ice crystals rise in direct proportion: 10 times more AgI gives 10 times more ice. The model has "
+                        "no upper limit. In a real cloud, too many ice crystals share the same water vapour, stay small and "
+                        "may not fall (over-seeding); this model does not include that effect."))
                 else:
                     st.info("Choose a temperature below −4.5 °C and S_w above 1 (with F ≤ 1) to see this chart.")
         except ValueError as exc:
@@ -690,8 +769,7 @@ with tab_method:
     b2.download_button("Download salts.csv", SALT_TABLE.to_csv(index=False).encode(), "salts.csv", width="stretch")
 
     html(ui.section("E", "Verification", "How we know the numbers are right",
-                    "Every check below is written as an automated test in " + repo_link("tests", "the tests folder")
-                    + ". Running <code>python -m pytest</code> repeats all 18 checks in a few seconds, and all of them pass."))
+                    "Each check below is written as an automated test in " + repo_link("tests", "the tests folder") + "."))
     html('<ul class="rw-checks">'
          '<li><b>Is the Köhler formula really the peak of the curve?</b> We drew the curve at 200,000 points and picked the '
          'highest one by brute force. It matches r<sub>c</sub> = √(3B/A) and S<sub>c</sub> − 1 = √(4A<sup>3</sup>/27B) to '
@@ -701,7 +779,7 @@ with tab_method:
          '900 × 1.051<sup>3</sup> × 0.002<sup>2</sup> = 0.00418, so 10 AgI particles per cm³ give 41.8 ice crystals per '
          'litre — the same as the app.</li>'
          '<li><b>Do the trends make physical sense?</b> A bigger salt particle needs less supersaturation (exactly '
-         'D<sub>dry</sub><sup>−3/2</sup>),. For AgI, F rises when '
+         'D<sub>dry</sub><sup>−3/2</sup>). For AgI, F rises when '
          'the cloud gets colder and when it gets more humid, and INP is exactly proportional to the amount of AgI.</li>'
          '<li><b>Are the limits of the AgI equation respected?</b> Warmer than −4.5 °C: not computed. S<sub>w</sub> ≤ 1: '
          'F = 0. F above 1: shown with a warning and never turned into an INP number (it is not silently cut to 1).</li>'
