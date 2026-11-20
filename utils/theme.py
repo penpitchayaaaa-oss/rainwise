@@ -298,7 +298,9 @@ def _icon(name: str) -> str:
     if name.startswith("logo:"):
         return _logo(name[5:])
     if name == "rainwise":  # same drop mark as the RAINWISE brand in the nav bar
-        return '<span class="rw-mark" style="width:24px;height:24px;margin-top:4px"></span>'
+        return ('<span style="display:flex;align-items:center;gap:7px;padding:0 6px">'
+                '<span class="rw-mark" style="width:18px;height:18px;flex:none"></span>'
+                '<span style="font-weight:700;font-size:.72rem;letter-spacing:.1em;color:var(--ink)">RAINWISE</span></span>')
     return (f'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" '
             f'stroke-linecap="round" stroke-linejoin="round">{_ICONS[name]}</svg>')
 
@@ -324,7 +326,8 @@ def intro_flow() -> str:
     boxes = []
     for i, (ic, k, t, d) in enumerate(INTRO_STEPS):
         cls = "rw-fbox future" if i == len(INTRO_STEPS) - 1 else "rw-fbox"
-        boxes.append(f'<div class="{cls}" style="animation-delay:{i * 0.12:.2f}s"><div class="rw-ficon">{_icon(ic)}</div>'
+        wide = ' style="width:fit-content;padding:0 6px"' if ic == "rainwise" else ""
+        boxes.append(f'<div class="{cls}" style="animation-delay:{i * 0.12:.2f}s"><div class="rw-ficon"{wide}>{_icon(ic)}</div>'
                      f'<div class="rw-fk">{k}</div><div class="rw-ft">{t}</div><div class="rw-fd">{d}</div></div>')
         if i < len(INTRO_STEPS) - 1:
             boxes.append('<div class="rw-flink"><span class="rw-fdot" style="animation-delay:'
