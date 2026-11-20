@@ -1,6 +1,9 @@
 """Visual layer for RAINWISE (HTML/CSS only, no physics)."""
 from __future__ import annotations
 
+import base64
+import os
+
 CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
@@ -282,7 +285,18 @@ _ICONS = {
 }
 
 
+_LOGO_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
+
+
+def _logo(file: str) -> str:
+    with open(os.path.join(_LOGO_DIR, file), "rb") as f:
+        b64 = base64.b64encode(f.read()).decode()
+    return f'<img src="data:image/png;base64,{b64}" width="28" height="28" alt="" style="object-fit:contain">'
+
+
 def _icon(name: str) -> str:
+    if name.startswith("logo:"):
+        return _logo(name[5:])
     return (f'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" '
             f'stroke-linecap="round" stroke-linejoin="round">{_ICONS[name]}</svg>')
 
@@ -292,9 +306,9 @@ INTRO_STEPS = [
      "Kelvin effect, Raoult’s law, Köhler curve, nucleation theory, Clausius–Clapeyron."),
     ("data", "02 · Data", "Reference values",
      "Constants from the CRC Handbook, IAPWS-95 and peer-reviewed papers. Every value has a source."),
-    ("fx", "03 · Equations", "Model code",
+    ("logo:logo_python.png", "03 · Equations", "Model code",
      "One equation = one Python function, in SI units. No hidden fitting."),
-    ("sliders", "04 · Your inputs", "Cloud conditions",
+    ("logo:logo_excel.png", "04 · Your inputs", "Cloud conditions",
      "Salt and particle size, temperature, humidity (supersaturation), amount of AgI."),
     ("chart", "05 · Results", "Numbers & charts",
      "Critical radius and supersaturation, activation verdict, AgI active fraction and ice crystals (INP)."),
