@@ -27,7 +27,7 @@ a{color:var(--accent);}
 /* hero */
 .rw-hero{padding:64px 0 40px;display:grid;grid-template-columns:1.5fr 1fr;gap:48px;align-items:center;}
 .rw-eyebrow{font-size:.78rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
-.rw-hero h1{font-family:'Instrument Serif',Georgia,serif !important;font-weight:400;font-size:3.4rem;line-height:1.06;
+.rw-hero h1{font-family:'Instrument Serif',Georgia,serif !important;font-weight:400;font-size:clamp(2.1rem,7.2vw,3.4rem);line-height:1.08;overflow-wrap:normal;word-break:keep-all;hyphens:none;
   margin:0 0 18px;padding:0;letter-spacing:-0.02em;}
 .rw-hero h1 em{color:var(--accent);font-style:italic;}
 .rw-hero p.lead{font-size:1.12rem;color:var(--body);max-width:560px;margin:0 0 26px;}
@@ -114,6 +114,13 @@ a{color:var(--accent);}
 .rw-foot{margin-top:72px;padding:22px 0;border-top:1px solid var(--line);font-size:.82rem;color:var(--muted);display:flex;justify-content:space-between;}
 [data-testid="stExpander"] details{border-radius:14px !important;border-color:var(--line) !important;background:#fff;}
 .stButton button{border-radius:999px;}
+.rw-method li{margin-bottom:6px;}
+.rw-figcap{font-size:.85rem;color:var(--muted);line-height:1.55;margin:-6px 0 18px;max-width:900px;}
+.rw-checks{padding-left:1.1rem;margin:0;}
+.rw-checks li{margin-bottom:10px;line-height:1.6;}
+.rw-table a{color:var(--accent);text-decoration:none;font-family:'SFMono-Regular',Consolas,monospace;font-size:.8rem;white-space:nowrap;}
+.rw-table a:hover{text-decoration:underline;}
+@media (max-width: 600px){.rw-hero{padding:36px 0 24px;}.rw-hero h1{font-size:2.15rem;}.rw-sec h2{font-size:1.7rem;}.rw-fact .v{font-size:1.5rem;}.block-container{padding:0 1rem 3rem !important;}}
 @media (max-width: 900px){.rw-hero{grid-template-columns:1fr;}.rw-grid.g2,.rw-grid.g3,.rw-grid.g4,.rw-facts,.rw-kpis{grid-template-columns:1fr;}}
 </style>
 """
@@ -200,3 +207,55 @@ def table(df, mono_cols: tuple = ()) -> str:
         cells = "".join(f'<td class="{"mono" if c in mono_cols else ""}">{r[c]}</td>' for c in df.columns)
         rows.append(f"<tr>{cells}</tr>")
     return f'<table class="rw-table"><thead><tr>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table>'
+
+
+# original schematic drawings (not copied from any source)
+KELVIN_SVG = """
+<svg viewBox="0 0 520 210" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="520" height="210" rx="16" fill="#F8FAFC"/>
+  <text x="130" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="#0B1F33">Flat water surface</text>
+  <rect x="40" y="140" width="180" height="40" rx="4" fill="#BFDBFE"/>
+  <g stroke="#2563EB" stroke-width="2" marker-end="url(#a)"><line x1="90" y1="136" x2="90" y2="104"/><line x1="170" y1="136" x2="170" y2="104"/></g>
+  <text x="130" y="80" text-anchor="middle" font-size="12" fill="#334155">few molecules escape</text>
+  <text x="130" y="198" text-anchor="middle" font-size="12" fill="#0B1F33">p<tspan dy="4" font-size="9">eq,flat</tspan></text>
+  <text x="390" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="#0B1F33">Small droplet (radius r)</text>
+  <circle cx="390" cy="135" r="30" fill="#BFDBFE"/>
+  <g stroke="#DC2626" stroke-width="2" marker-end="url(#b)"><line x1="390" y1="102" x2="390" y2="68"/><line x1="417" y1="115" x2="447" y2="92"/>
+    <line x1="363" y1="115" x2="333" y2="92"/><line x1="423" y1="142" x2="458" y2="146"/><line x1="357" y1="142" x2="322" y2="146"/></g>
+  <text x="390" y="56" text-anchor="middle" font-size="12" fill="#334155">more molecules escape</text>
+  <text x="390" y="198" text-anchor="middle" font-size="12" fill="#0B1F33">p<tspan dy="4" font-size="9">eq</tspan><tspan dy="-4">(r) &gt; p</tspan><tspan dy="4" font-size="9">eq,flat</tspan></text>
+  <defs><marker id="a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2563EB"/></marker>
+  <marker id="b" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#DC2626"/></marker></defs>
+</svg>"""
+
+BERGERON_SVG = """
+<svg viewBox="0 0 520 210" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="520" height="210" rx="16" fill="#F8FAFC"/>
+  <text x="260" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="#0B1F33">Below 0 °C: vapour moves from droplets to ice</text>
+  <circle cx="110" cy="115" r="34" fill="#BFDBFE"/><circle cx="110" cy="115" r="22" fill="none" stroke="#2563EB" stroke-dasharray="3 3"/>
+  <text x="110" y="172" text-anchor="middle" font-size="12" fill="#334155">supercooled droplet</text>
+  <text x="110" y="190" text-anchor="middle" font-size="12" fill="#DC2626">evaporates (shrinks)</text>
+  <g stroke="#64748B" stroke-width="2" marker-end="url(#c)"><line x1="155" y1="100" x2="330" y2="100"/><line x1="155" y1="130" x2="330" y2="130"/></g>
+  <text x="243" y="90" text-anchor="middle" font-size="12" fill="#0B1F33">water vapour</text>
+  <text x="243" y="152" text-anchor="middle" font-size="12" fill="#0B1F33">p*<tspan dy="4" font-size="9">liq</tspan><tspan dy="-4"> &gt; p*</tspan><tspan dy="4" font-size="9">ice</tspan></text>
+  <g transform="translate(400,115)" stroke="#1E3A8A" stroke-width="3" stroke-linecap="round">
+    <line x1="0" y1="-38" x2="0" y2="38"/><line x1="-33" y1="-19" x2="33" y2="19"/><line x1="-33" y1="19" x2="33" y2="-19"/>
+    <g stroke-width="2"><line x1="0" y1="-26" x2="-8" y2="-34"/><line x1="0" y1="-26" x2="8" y2="-34"/><line x1="0" y1="26" x2="-8" y2="34"/>
+    <line x1="0" y1="26" x2="8" y2="34"/></g></g>
+  <text x="400" y="172" text-anchor="middle" font-size="12" fill="#334155">ice crystal</text>
+  <text x="400" y="190" text-anchor="middle" font-size="12" fill="#15803D">grows (deposition)</text>
+  <defs><marker id="c" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#64748B"/></marker></defs>
+</svg>"""
+
+COALESCENCE_SVG = """
+<svg viewBox="0 0 520 170" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <rect width="520" height="170" rx="16" fill="#F8FAFC"/>
+  <g fill="#93C5FD"><circle cx="60" cy="60" r="7"/><circle cx="90" cy="95" r="6"/><circle cx="50" cy="120" r="5"/>
+    <circle cx="200" cy="55" r="5"/><circle cx="225" cy="110" r="6"/><circle cx="410" cy="60" r="5"/><circle cx="440" cy="105" r="4"/></g>
+  <circle cx="150" cy="80" r="16" fill="#2563EB"/><line x1="150" y1="100" x2="150" y2="135" stroke="#2563EB" stroke-width="2" marker-end="url(#d)"/>
+  <circle cx="330" cy="95" r="26" fill="#1D4ED8"/><line x1="330" y1="125" x2="330" y2="158" stroke="#1D4ED8" stroke-width="2" marker-end="url(#d)"/>
+  <text x="150" y="30" text-anchor="middle" font-size="12" fill="#0B1F33">large drop falls faster</text>
+  <text x="330" y="40" text-anchor="middle" font-size="12" fill="#0B1F33">collects small drops → grows</text>
+  <text x="455" y="150" text-anchor="middle" font-size="12" fill="#0B1F33">heavy enough → rain</text>
+  <defs><marker id="d" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1D4ED8"/></marker></defs>
+</svg>"""
