@@ -5,6 +5,7 @@ Physics lives in models/ (warm.py, agi.py); this file is layout and wording only
 """
 from __future__ import annotations
 
+import importlib
 import inspect
 import math
 import os
@@ -18,6 +19,11 @@ from utils import plots
 from utils import theme as ui
 from utils.library import COLUMNS as SALT_COLUMNS
 from utils.library import apply_edits, to_salts
+
+# Streamlit Cloud can keep an older copy of these modules in memory after a redeploy; reload them so the
+# page always uses the files that were just pushed.
+plots = importlib.reload(plots)
+ui = importlib.reload(ui)
 
 st.set_page_config(page_title="RAINWISE — Cloud Seeding Thermodynamics", page_icon=":material/water_drop:",
                    layout="wide", initial_sidebar_state="collapsed")
