@@ -187,16 +187,18 @@ with tab_warm:
                     "collide and merge with smaller ones (<b>collision–coalescence</b>), and become heavy enough to fall."))
     c1, c2 = st.columns([1.1, 1], gap="large")
     with c1:
-        html('<div class="rw-card"><div class="tag" style="color:#1D4ED8">Collision–coalescence</div>'
-             '<ol class="rw-steps"><li>Droplets of different sizes fall at different speeds.</li>'
-             '<li>Large droplets fall faster and sweep up small ones in their path.</li>'
-             '<li>The droplets merge into larger drops.</li>'
-             '<li>Once heavy enough, the drops fall as rain.</li></ol></div>')
-        components.html(anim.warm_rain_html(), height=anim.WARM_FRAME_H)
+        html('<div class="rw-card"><div class="tag" style="color:#1D4ED8">From salt particle to rain</div>'
+             '<ol class="rw-steps"><li>Salt particles (NaCl, CaCl₂) are carried up into the cloud by the updraft.</li>'
+             '<li>The salt absorbs water and dissolves into a large solution droplet.</li>'
+             '<li>The large drop falls faster than the small droplets and sweeps them up in its path.</li>'
+             '<li><b>Collision–coalescence:</b> the drops merge, so the big drop keeps growing.</li>'
+             '<li>Once heavy enough, it falls out of the cloud base as rain.</li></ol></div>')
     with c2:
         html(ui.section("02", "Where", "Inside a warm cloud"))
         html(ui.facts([("Cloud", "Warm", "liquid water only"), ("Altitude", "~1,000 m", "≈ 3,000 ft"),
                        ("Temperature", "> 0 °C", "no ice involved")]))
+    st.write("")
+    components.html(anim.warm_rain_html(), height=anim.WARM_FRAME_H)
 
     html(ui.section("03", "When", "Seed in the morning, while the clouds are still growing.",
                     "In the Royal Rainmaking technique the warm-cloud steps follow the life of the cloud. Each step starts "
