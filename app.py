@@ -12,10 +12,11 @@ import os
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 from models import agi, warm
 from models.constants import CONSTANTS_FILE, SALTS_FILE, SIGMA_W, c_to_k
-from utils import plots
+from utils import anim, plots
 from utils import theme as ui
 from utils.library import COLUMNS as SALT_COLUMNS
 from utils.library import apply_edits, to_salts
@@ -24,6 +25,7 @@ from utils.library import apply_edits, to_salts
 # page always uses the files that were just pushed.
 plots = importlib.reload(plots)
 ui = importlib.reload(ui)
+anim = importlib.reload(anim)
 
 st.set_page_config(page_title="RAINWISE — Cloud Seeding Thermodynamics", page_icon=":material/water_drop:",
                    layout="wide", initial_sidebar_state="collapsed")
@@ -190,7 +192,7 @@ with tab_warm:
              '<li>Large droplets fall faster and sweep up small ones in their path.</li>'
              '<li>The droplets merge into larger drops.</li>'
              '<li>Once heavy enough, the drops fall as rain.</li></ol></div>')
-        html(ui.COALESCENCE_SVG)
+        components.html(anim.warm_rain_html(), height=anim.WARM_FRAME_H)
     with c2:
         html(ui.section("02", "Where", "Inside a warm cloud"))
         html(ui.facts([("Cloud", "Warm", "liquid water only"), ("Altitude", "~1,000 m", "≈ 3,000 ft"),
@@ -521,10 +523,7 @@ with tab_cold:
     with st.container(border=True, key="eq_cc"):
         st.latex(r"\frac{d\ln p^{*}}{d(1/T)}=-\frac{\Delta h}{R};\qquad \Delta h_{sub}=\Delta h_{vap}+\Delta h_{fus}"
                  r"\;\Rightarrow\; p^{*}_{ice}<p^{*}_{liq}\ \text{for}\ T<0\,^{\circ}\mathrm{C}")
-    html(ui.ICE_TO_RAIN_SVG)
-    html('<p class="rw-figcap">1 The supercooled droplet loses vapour · 2 the ice crystal gains it by deposition and also '
-         'collects droplets (riming) · 3 the crystal becomes heavy and falls as snow · 4 below the 0 °C level it melts '
-         'and reaches the ground as rain.</p>')
+    components.html(anim.cold_rain_html(), height=anim.COLD_FRAME_H)
 
     # ---------------------------------------------------------------- the model used for numbers
     html(ui.section("07", "Model", "How many ice crystals does AgI make? One mechanism, one equation.",
