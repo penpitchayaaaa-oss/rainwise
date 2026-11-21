@@ -188,7 +188,7 @@ with tab_warm:
     c1, c2 = st.columns([1.1, 1], gap="large")
     with c1:
         html('<div class="rw-card"><div class="tag" style="color:#1D4ED8">From salt particle to rain</div>'
-             '<ol class="rw-steps"><li>Salt particles (NaCl, CaCl₂) are carried up into the cloud by the updraft.</li>'
+             '<ol class="rw-steps"><li>An aircraft releases salt particles (NaCl, CaCl₂) below the cloud; the updraft carries them up.</li>'
              '<li>The salt absorbs water and dissolves into a large solution droplet.</li>'
              '<li>The large drop falls faster than the small droplets and sweeps them up in its path.</li>'
              '<li><b>Collision–coalescence:</b> the drops merge, so the big drop keeps growing.</li>'
