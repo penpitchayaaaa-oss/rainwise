@@ -144,9 +144,8 @@ html(f"""
   <div>
     <div class="rw-eyebrow">The thermodynamics of cloud seeding</div>
     <h1>Why does a seeded cloud rain?<br><em>Thermodynamics</em> explains it.</h1>
-    <p class="lead">RAINWISE turns the physics behind Royal Rainmaking into a model you can test. Pick a seeding
-    agent, set the cloud conditions and see whether droplets and ice crystals can grow, using five
-    textbook principles.</p>
+    <p class="lead">RAINWISE turns the physics behind Royal Rainmaking into a model you can test.
+    Pick a seeding agent, set the cloud conditions and see whether droplets and ice crystals can grow, using five textbook principles.</p>
     <div class="rw-chips"><span class="rw-chip">Kelvin effect</span><span class="rw-chip">Raoult's law</span>
     <span class="rw-chip">Köhler curve</span><span class="rw-chip">Nucleation theory</span>
     <span class="rw-chip">Clausius–Clapeyron</span></div>

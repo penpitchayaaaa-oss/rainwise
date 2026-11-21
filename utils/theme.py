@@ -22,8 +22,8 @@ a{color:var(--accent);}
 
 /* nav */
 .rw-nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0 18px;border-bottom:1px solid var(--line);}
-.rw-brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.14em;font-size:.95rem;color:var(--ink);}
-.rw-mark{width:22px;height:22px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+.rw-brand{display:flex;align-items:center;gap:13px;font-weight:700;letter-spacing:.14em;font-size:1.3rem;color:var(--ink);}
+.rw-mark{width:22px;height:22px;flex:none;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
   background:linear-gradient(135deg,#1D4ED8,#38BDF8);}
 .rw-navmeta{font-size:.82rem;color:var(--muted);}
 
@@ -33,7 +33,7 @@ a{color:var(--accent);}
 .rw-hero h1{font-family:'Instrument Serif',Georgia,serif !important;font-weight:400;font-size:clamp(2.1rem,7.2vw,3.4rem);line-height:1.08;overflow-wrap:normal;word-break:keep-all;hyphens:none;
   margin:0 0 18px;padding:0;letter-spacing:-0.02em;}
 .rw-hero h1 em{color:var(--accent);font-style:italic;}
-.rw-hero p.lead{font-size:1.12rem;color:var(--body);max-width:560px;margin:0 0 26px;}
+.rw-hero p.lead{font-size:1.12rem;color:var(--body);max-width:700px;margin:0 0 26px;text-wrap:balance;}
 .rw-chips{display:flex;gap:8px;flex-wrap:wrap;}
 .rw-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:.84rem;color:var(--ink);}
 .rw-hero-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px 24px;box-shadow:0 20px 50px -30px rgba(11,31,51,.35);}
@@ -162,7 +162,7 @@ CLOUD_SVG = """
 
 
 def nav() -> str:
-    return ('<div class="rw-nav"><div class="rw-brand"><span class="rw-mark"></span>RAINWISE</div>'
+    return ('<div class="rw-nav"><div class="rw-brand"><span class="rw-mark" style="width:30px;height:30px"></span>RAINWISE</div>'
             '</div>')
 
 
@@ -339,7 +339,7 @@ def intro_flow() -> str:
                          f'{i * 0.35:.2f}s"></span></div>')
     return ('<div class="rw-intro"><div class="rw-intro-head"><span class="rw-badge2">Scientific simulator · prototype</span>'
             '<h3>Where every number in RAINWISE comes from</h3>'
-            '<p>RAINWISE is <b>not</b> a weather forecast. It is a scientific simulator: '
+            '<p>RAINWISE is <b>not</b> a weather forecast. It is a scientific simulator: <br class="rw-br">'
             'you change the cloud conditions and it calculates what textbook thermodynamics says should happen.</p></div>'
             f'<div class="rw-fflow">{"".join(boxes)}</div></div>')
 
@@ -450,6 +450,7 @@ INTRO_CSS = """
 @media (max-width: 900px){.rw-pm-row{grid-template-columns:1fr;gap:10px;}
   .rw-pm-row{margin-bottom:14px;}.rw-pm-steps{flex-direction:column;gap:6px;}.rw-pm-step{flex:none;}.rw-pm-head h3{font-size:1.7rem;}.rw-pm-arw{transform:rotate(90deg);flex:0 0 18px;}}
 @media (min-width: 1200px){.rw-fk{white-space:nowrap;letter-spacing:.02em;}}
+@media (max-width: 700px){.rw-br{display:none;}}
 @media (max-width: 900px){.rw-fflow{flex-direction:column;gap:6px;}.rw-flink{flex:0 0 14px;width:2px;height:14px;align-self:center;
   background:repeating-linear-gradient(180deg,#C7D2FE 0 4px,transparent 4px 7px);}.rw-fdot{display:none;}
   .rw-pgrid,.rw-road{grid-template-columns:1fr;}}
