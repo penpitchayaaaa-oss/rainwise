@@ -46,6 +46,17 @@ a{color:var(--accent);}
 .stTabs [data-baseweb="tab-highlight"]{background:var(--ink) !important;height:2px !important;}
 .stTabs [data-baseweb="tab-border"]{display:none;}
 
+/* warm-cloud tab: orange accent instead of blue */
+[role="tab"][data-key="1"]:not([role="tabpanel"] [role="tab"]) .react-aria-SelectionIndicator{background:#EA580C !important;}
+[role="tab"][data-key="1"]:not([role="tabpanel"] [role="tab"]):focus-visible,
+[role="tab"][data-key="1"]:not([role="tabpanel"] [role="tab"])[data-focus-visible]{outline:2px solid #EA580C !important;outline-offset:-2px;box-shadow:none !important;}
+[role="tab"][data-key="1"]:not([role="tabpanel"] [role="tab"])[data-selected="true"] p{color:#C2410C !important;}
+[id$="-tabpanel-1"]:not([role="tabpanel"] [role="tabpanel"]){--accent:#EA580C;--accent-soft:#FFF1E6;}
+[id$="-tabpanel-1"]:not([role="tabpanel"] [role="tabpanel"]) .rw-kicker .n{color:#EA580C;}
+[id$="-tabpanel-1"]:not([role="tabpanel"] [role="tabpanel"]) .rw-card .tag[style*="1D4ED8" i], .rw-card .tag[style*="29, 78, 216"]{color:#EA580C !important;}
+[id$="-tabpanel-1"]:not([role="tabpanel"] [role="tabpanel"]) .rw-chartnote{border-left-color:#F97316;}
+[id$="-tabpanel-1"]:not([role="tabpanel"] [role="tabpanel"]) [role="tab"] .react-aria-SelectionIndicator{background:#EA580C !important;}
+[id$="-tabpanel-1"]:not([role="tabpanel"] [role="tabpanel"]) [role="tab"][data-selected="true"] p{color:#C2410C !important;}
 /* sections */
 .rw-sec{margin:56px 0 18px;}
 .rw-kicker{display:flex;align-items:center;gap:12px;font-size:.78rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
