@@ -176,19 +176,7 @@ with tab_over:
                 "nucleation). The new crystals then grow quickly because p*<sub>ice</sub> &lt; p*<sub>liq</sub> "
                 "(<b>Bergeron process</b>, from Clausius–Clapeyron).", "cold"),
     ], 2))
-    html(ui.section("", "How each page is organised", "What · Where · When · Why · How · Result"))
-    html(ui.grid([
-        ui.card("01 · What", "The method", "What is sprayed into the cloud, and what it does.", ""),
-        ui.card("02 · Where", "The cloud", "Cloud type, typical altitude and temperature.", ""),
-        ui.card("03 · When", "The timing", "The weather and cloud stage at which each seeding step starts.", ""),
-    ], 3))
-    st.write("")
-    html(ui.grid([
-        ui.card("04 · Why", "The physics", "The thermodynamic reason the cloud does not rain by itself.", ""),
-        ui.card("05 · How", "Pain point → solution", "How the seeding agent removes that obstacle.", ""),
-        ui.card("06 · Result", "The equation, then the simulator",
-                "The governing curve, with an interactive model to test any agent, size and temperature.", ""),
-    ], 3))
+    html(ui.page_map())
 
 # =============================================================================== WARM CLOUD
 with tab_warm:

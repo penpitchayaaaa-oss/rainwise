@@ -281,6 +281,11 @@ _ICONS = {
     "fx": '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M10 7c-1.5 0-2 1-2 2v8M6.5 11h4"/><path d="M13 11l4 6M17 11l-4 6"/>',
     "sliders": '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
     "chart": '<path d="M4 20V4"/><path d="M4 20h16"/><path d="M7 16c3-1 4-8 7-8s3 5 6 5"/>',
+    "spray": '<path d="M8 21h7V11H8z"/><path d="M9.5 11V8h4v3"/><path d="M11.5 8V5h3.5"/><path d="M18 5h.01M20.5 3h.01M20.5 7h.01M18 9h.01"/>',
+    "cloud": '<path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.1 4.5 4.5 0 0 0 7 18z"/>',
+    "clock": '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+    "atom": '<circle cx="12" cy="12" r="1.4"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(120 12 12)"/>',
+    "bulb": '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>',
     "shield": '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
 }
 
@@ -339,6 +344,40 @@ def intro_flow() -> str:
             f'<div class="rw-fflow">{"".join(boxes)}</div></div>')
 
 
+PAGE_STEPS = [
+    ("spray", "01", "What", "The method", "What is sprayed into the cloud, and what it does."),
+    ("cloud", "02", "Where", "The cloud", "Cloud type, typical altitude and temperature."),
+    ("clock", "03", "When", "The timing", "The weather and cloud stage at which each seeding step starts."),
+    ("atom", "04", "Why", "The physics", "The thermodynamic reason the cloud does not rain by itself."),
+    ("bulb", "05", "How", "Pain point → solution", "How the seeding agent removes that obstacle."),
+    ("chart", "06", "Result", "The equation, then the simulator",
+     "The governing curve, with an interactive model to test any agent, size and temperature."),
+]
+
+
+def page_map() -> str:
+    def step(i: int) -> str:
+        ic, n, k, t, d = PAGE_STEPS[i]
+        cls = "rw-pm-step last" if i == len(PAGE_STEPS) - 1 else "rw-pm-step"
+        return (f'<div class="{cls}" style="animation-delay:{i * 0.1:.2f}s"><span class="rw-pm-num">{n}</span>'
+                f'<div class="rw-pm-icon">{_icon(ic)}</div><div class="rw-pm-k">{k}</div>'
+                f'<div class="rw-pm-t">{t}</div><div class="rw-pm-d">{d}</div></div>')
+
+    arrow = ('<div class="rw-pm-arw"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" '
+             'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
+
+    def row(label: str, sub: str, idx: range) -> str:
+        cells = arrow.join(step(i) for i in idx)
+        return (f'<div class="rw-pm-row"><div class="rw-pm-phase"><b>{label}</b><span>{sub}</span></div>'
+                f'<div class="rw-pm-steps">{cells}</div></div>')
+
+    return ('<div class="rw-pm"><div class="rw-pm-head"><span class="rw-badge2">How each page is organised</span>'
+            '<h3>What · Where · When · Why · How · Result</h3>'
+            '<p>The warm-cloud and cold-cloud pages follow the same six steps, so you always know where to look.</p></div>'
+            + row("Set the scene", "Steps 01–03", range(0, 3))
+            + row("Explain &amp; test", "Steps 04–06", range(3, 6)) + '</div>')
+
+
 INTRO_CSS = """
 <style>
 .rw-intro{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px 26px 22px;margin:8px 0 6px;
@@ -378,6 +417,37 @@ INTRO_CSS = """
 .rw-ritem div.d{font-size:.88rem;color:var(--body);line-height:1.5;margin-top:2px;}
 .rw-tag{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:2px;}
 .rw-tag.v{background:#FEF3C7;color:#92400E;} .rw-tag.m{background:#E0E7FF;color:#3730A3;} .rw-tag.d{background:#DCFCE7;color:#166534;}
+.rw-pm{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px 26px 22px;margin:56px 0 6px;
+  box-shadow:0 18px 40px -32px rgba(11,31,51,.45);}
+.rw-pm-head h3{font-family:'Instrument Serif',Georgia,serif !important;font-weight:400;font-size:2.2rem;line-height:1.1;margin:10px 0 6px;padding:0;}
+.rw-pm-head p{margin:0 0 20px;color:var(--body);}
+.rw-pm-row{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:stretch;}
+.rw-pm-row + .rw-pm-row{margin-top:16px;padding-top:16px;border-top:1px dashed var(--line);}
+.rw-pm-phase{border-left:3px solid var(--accent);padding:4px 0 4px 12px;align-self:center;}
+.rw-pm-phase b{display:block;font-family:"Times New Roman",Tinos,Times,serif;font-size:1.05rem;color:var(--ink);}
+.rw-pm-phase span{font-size:.78rem;color:var(--muted);letter-spacing:.04em;}
+.rw-pm-steps{display:flex;align-items:stretch;}
+.rw-pm-step{position:relative;flex:1 1 0;min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:16px;
+  padding:16px 16px 14px;background:linear-gradient(180deg,#fff,#F7F9FC);opacity:0;transform:translateY(8px);
+  animation:rwIn .6s ease forwards;transition:box-shadow .2s, transform .2s, border-color .2s;}
+.rw-pm-step:hover{box-shadow:0 10px 24px -14px rgba(29,78,216,.45);transform:translateY(-2px);border-color:#C7D2FE;}
+.rw-pm-num{position:absolute;right:12px;top:2px;font-family:'Instrument Serif',Georgia,serif;font-size:3.4rem;line-height:1;
+  color:#E8EEFB;pointer-events:none;}
+.rw-pm-icon{position:relative;width:42px;height:42px;border-radius:12px;background:var(--accent-soft);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.rw-pm-k{position:relative;font-family:"Times New Roman",Tinos,Times,serif;font-size:.84rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent);}
+.rw-pm-t{position:relative;font-weight:600;color:var(--ink);font-size:1rem;margin:2px 0 4px;}
+.rw-pm-d{position:relative;font-size:.86rem;color:var(--body);line-height:1.5;}
+.rw-pm-arw{flex:0 0 30px;display:flex;align-items:center;justify-content:center;color:#93A8D8;}
+.rw-pm-step.last{background:linear-gradient(135deg,#0B1F33 0%,#13305A 60%,#1D4ED8 130%);border-color:#13305A;}
+.rw-pm-step.last .rw-pm-num{color:rgba(255,255,255,.1);}
+.rw-pm-step.last .rw-pm-icon{background:rgba(255,255,255,.12);color:#BFDBFE;}
+.rw-pm-step.last .rw-pm-k{color:#93C5FD;}
+.rw-pm-step.last .rw-pm-t{color:#fff;}
+.rw-pm-step.last .rw-pm-d{color:#CBD5E1;}
+@media (max-width: 900px){.rw-pm-row{grid-template-columns:1fr;gap:10px;}
+  .rw-pm-row{margin-bottom:14px;}.rw-pm-steps{flex-direction:column;gap:6px;}.rw-pm-step{flex:none;}.rw-pm-head h3{font-size:1.7rem;}.rw-pm-arw{transform:rotate(90deg);flex:0 0 18px;}}
 @media (max-width: 900px){.rw-fflow{flex-direction:column;gap:6px;}.rw-flink{flex:0 0 14px;width:2px;height:14px;align-self:center;
   background:repeating-linear-gradient(180deg,#C7D2FE 0 4px,transparent 4px 7px);}.rw-fdot{display:none;}
   .rw-pgrid,.rw-road{grid-template-columns:1fr;}}
