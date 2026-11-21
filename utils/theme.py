@@ -360,7 +360,7 @@ def page_map() -> str:
         ic, n, k, t, d = PAGE_STEPS[i]
         cls = "rw-pm-step last" if i == len(PAGE_STEPS) - 1 else "rw-pm-step"
         return (f'<div class="{cls}" style="animation-delay:{i * 0.1:.2f}s"><span class="rw-pm-num">{n}</span>'
-                f'<div class="rw-pm-icon">{_icon(ic)}</div><div class="rw-pm-k">{k}</div>'
+                f'<div class="rw-pm-k">{k}</div>'
                 f'<div class="rw-pm-t">{t}</div><div class="rw-pm-d">{d}</div></div>')
 
     arrow = ('<div class="rw-pm-arw"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" '
