@@ -315,7 +315,7 @@ INTRO_STEPS = [
      "Kelvin effect, Raoult’s law, Köhler curve, nucleation theory, Clausius–Clapeyron."),
     ("data", "02 · Data", "Reference values",
      "Constants from the CRC Handbook, IAPWS-95 and peer-reviewed papers. Every value has a source."),
-    ("logo:logo_excel.png", "03 · Your inputs", "Cloud conditions",
+    ("logo:logo_excel.png", "03 · User-defined", "Cloud conditions",
      "Salt and particle size, temperature, humidity (supersaturation), amount of AgI."),
     ("logo:logo_python.png", "04 · Equations", "Model code",
      "One equation = one Python function, in SI units. No hidden fitting."),
