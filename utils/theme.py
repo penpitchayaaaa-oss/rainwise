@@ -339,7 +339,7 @@ def intro_flow() -> str:
                          f'{i * 0.35:.2f}s"></span></div>')
     return ('<div class="rw-intro"><div class="rw-intro-head"><span class="rw-badge2">Scientific simulator · prototype</span>'
             '<h3>Where every number in RAINWISE comes from</h3>'
-            '<p>RAINWISE is <b>not</b> a weather forecast and does <b>not</b> predict rainfall. It is a scientific simulator: '
+            '<p>RAINWISE is <b>not</b> a weather forecast. It is a scientific simulator: '
             'you change the cloud conditions and it calculates what textbook thermodynamics says should happen.</p></div>'
             f'<div class="rw-fflow">{"".join(boxes)}</div></div>')
 
