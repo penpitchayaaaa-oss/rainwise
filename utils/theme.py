@@ -311,7 +311,7 @@ def _icon(name: str) -> str:
 
 
 INTRO_STEPS = [
-    ("book", "01 · Principles", "Course notes",
+    ("book", "01 · Principles", "Thermodynamics",
      "Kelvin effect, Raoult’s law, Köhler curve, nucleation theory, Clausius–Clapeyron."),
     ("data", "02 · Data", "Reference values",
      "Constants from the CRC Handbook, IAPWS-95 and peer-reviewed papers. Every value has a source."),
@@ -449,6 +449,7 @@ INTRO_CSS = """
 .rw-pm .rw-badge2{background:#F1F3F5;color:#475569;}
 @media (max-width: 900px){.rw-pm-row{grid-template-columns:1fr;gap:10px;}
   .rw-pm-row{margin-bottom:14px;}.rw-pm-steps{flex-direction:column;gap:6px;}.rw-pm-step{flex:none;}.rw-pm-head h3{font-size:1.7rem;}.rw-pm-arw{transform:rotate(90deg);flex:0 0 18px;}}
+@media (min-width: 1200px){.rw-fk{white-space:nowrap;letter-spacing:.02em;}}
 @media (max-width: 900px){.rw-fflow{flex-direction:column;gap:6px;}.rw-flink{flex:0 0 14px;width:2px;height:14px;align-self:center;
   background:repeating-linear-gradient(180deg,#C7D2FE 0 4px,transparent 4px 7px);}.rw-fdot{display:none;}
   .rw-pgrid,.rw-road{grid-template-columns:1fr;}}
